@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本商店街肉舖日語學習工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #7A2E20;
+    --navy-deep: #5C2117;
+    --steel: #A6604C;
+    --bg: #F6F0E6;
+    --card: #FFFFFF;
+    --card-alt: #F0E4D4;
+    --line: #E2D4C0;
+    --ink: #2B2320;
+    --ink-soft: #6B5B4D;
+    --muted: #9C8C7A;
+    --accent: #7A2E20;
+    --accent-soft: #EFD9C9;
+    --on-accent: #F6F0E6;
+    --r-sm: 10px;
+    --r-md: 16px;
+    --r-lg: 22px;
+    --r-pill: 999px;
+  }
+
+  html[data-theme="dark"] {
+    --bg: #1C1B1A;
+    --card: #262423;
+    --card-alt: #302E2C;
+    --line: #3F3D3A;
+    --ink: #D9D5D0;
+    --ink-soft: #A8A39C;
+    --muted: #7A766F;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "Noto Serif JP", serif;
+    min-height: 100vh;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    background: var(--navy);
+    color: var(--on-accent);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar-left { display: flex; align-items: baseline; gap: 10px; }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .topbar-sub {
+    font-size: 12px;
+    color: rgba(246,240,230,0.65);
+    letter-spacing: 0.02em;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+
+  .theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(246,240,230,0.25);
+    background: rgba(246,240,230,0.08);
+    color: #F6F0E6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .theme-toggle:hover {
+    background: rgba(246,240,230,0.16);
+    border-color: rgba(246,240,230,0.4);
+  }
+  .theme-toggle svg { width: 17px; height: 17px; }
+
+  /* ---------- Tab nav ---------- */
+  .tabbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 16px 10px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    user-select: none;
+  }
+  .tab-item:hover { color: var(--ink); }
+  .tab-item.active {
+    color: var(--ink);
+    font-weight: 700;
+    border-bottom-color: var(--navy);
+  }
+
+  .subtabbar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    overflow-x: auto;
+  }
+  .subtab-item {
+    padding: 11px 16px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    user-select: none;
+  }
+  .subtab-item:hover { color: var(--ink); }
+  .subtab-item.active {
+    color: var(--navy);
+    font-weight: 700;
+    border-bottom-color: var(--navy);
+  }
+
+  /* ---------- Inner tab ---------- */
+  .inner-tabbar {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--card-alt);
+    border-radius: var(--r-pill);
+    padding: 4px;
+    margin-bottom: 22px;
+  }
+  .inner-tab-item {
+    padding: 8px 20px;
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .inner-tab-item:hover { color: var(--ink); }
+  .inner-tab-item.active {
+    background: var(--navy);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+
+  .inner-view { display: none; }
+  .inner-view.active { display: block; }
+
+  /* ---------- Main ---------- */
+  .main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 22px 24px 80px;
+  }
+
+  .section-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* ---------- View switching ---------- */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ====== STUDY (flashcard) view ====== */
+  .study-layout {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .card-panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 48px 40px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card-index-tag {
+    position: absolute;
+    top: 20px;
+    left: 22px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .card-jp {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .card-kana {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+
+  .card-zh {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy);
+    min-height: 30px;
+  }
+
+  .card-hint {
+    margin-top: 22px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .card-nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 18px;
+  }
+
+  .nav-btn {
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+  .nav-counter {
+    font-size: 13px;
+    color: var(--muted);
+    min-width: 56px;
+    text-align: center;
+  }
+
+  .shuffle-btn {
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    padding: 0 18px;
+    height: 38px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .shuffle-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+  /* ====== Reference table view ====== */
+  .ref-toolbar-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .ref-toolbar-row .section-label {
+    margin-bottom: 0;
+  }
+
+  .shape-filter-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .shape-filter-item {
+    padding: 9px 20px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .shape-filter-item:hover { border-color: var(--navy); color: var(--ink); }
+  .shape-filter-item.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+
+  .ref-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .ref-cell {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 16px 20px;
+    min-height: 56px;
+    font-size: 15px;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .ref-cell:hover { border-color: var(--navy); }
+  .ref-cell-jp { font-weight: 700; }
+  .ref-cell.revealed {
+    background: var(--card-alt);
+    border-color: var(--navy);
+  }
+  .ref-cell-kana { font-size: 13px; color: var(--ink-soft); }
+  .ref-cell-zh { font-size: 16px; font-weight: 700; color: var(--ink); }
+
+  /* 中文常駐模式：取消點擊互動感，卡片永遠顯示假名＋中文 */
+  .ref-grid.zh-pinned .ref-cell {
+    cursor: default;
+  }
+  .ref-grid.zh-pinned .ref-cell:hover {
+    border-color: var(--line);
+  }
+
+  /* ====== Quiz view ====== */
+  .quiz-wrap { max-width: 560px; margin: 0 auto; }
+
+  .study-toolbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .study-toolbar-row .inner-tabbar {
+    margin-bottom: 0;
+  }
+  .direction-toggle-btn {
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--navy);
+    background: var(--card);
+    color: var(--navy);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+  }
+  .direction-toggle-btn:hover { background: var(--accent-soft); }
+
+  .quiz-progress {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .quiz-panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 40px 32px;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .quiz-question-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .quiz-jp { font-size: 28px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .quiz-kana { font-size: 14px; color: var(--ink-soft); }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .quiz-option {
+    padding: 16px 12px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 14px;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--navy); }
+  .quiz-option.correct { background: #DCEADD; border-color: #4E7D54; color: #294A2D; }
+  .quiz-option.wrong { background: #F1DCDC; border-color: #97393B; color: #6B2829; }
+  .quiz-option:disabled { cursor: default; }
+
+  .quiz-feedback {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--navy);
+    min-height: 18px;
+  }
+
+  .quiz-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  .quiz-score { font-size: 13px; color: var(--ink-soft); }
+  .quiz-score strong { color: var(--navy); }
+
+  .next-btn {
+    padding: 9px 22px;
+    border-radius: var(--r-pill);
+    background: var(--navy);
+    color: var(--on-accent);
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .next-btn:disabled { opacity: 0.35; cursor: default; }
+
+  .quiz-result { text-align: center; padding: 50px 30px; }
+  .quiz-result .big-score { font-size: 46px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .quiz-result .result-msg { color: var(--ink-soft); font-size: 14px; margin-bottom: 22px; }
+  .restart-btn {
+    padding: 10px 28px;
+    border-radius: var(--r-pill);
+    background: var(--navy);
+    color: var(--on-accent);
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ====== Confusables view ====== */
+  .confuse-row {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 18px 22px;
+    margin-bottom: 12px;
+  }
+  .confuse-title { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .confuse-items { display: flex; gap: 12px; flex-wrap: wrap; }
+  .confuse-pill {
+    background: var(--card-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+  .confuse-pill .k { font-weight: 700; color: var(--ink); }
+  .confuse-pill .z { font-size: 12px; color: var(--muted); margin-left: 6px; }
+
+  /* ====== Phrase view ====== */
+  .phrase-toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+  .phrase-toggle-group {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .phrase-toggle-btn {
+    padding: 7px 16px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .phrase-toggle-btn:hover { border-color: var(--navy); color: var(--ink); }
+  .phrase-toggle-btn[data-on="true"] {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+
+  .scene-tabbar {
+    display: flex;
+    gap: 8px;
+    margin: 0 auto 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 680px;
+  }
+  .scene-tab-item {
+    padding: 9px 20px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .scene-tab-item:hover { border-color: var(--navy); color: var(--ink); }
+  .scene-tab-item.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+
+  .scenario-tabbar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 0 auto 16px;
+    max-width: 680px;
+  }
+  .scenario-tab-item {
+    padding: 9px 14px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .scenario-tab-item:hover { border-color: var(--navy); color: var(--ink); }
+  .scenario-tab-item.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+
+  .playall-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 680px;
+    margin: 0 auto 18px;
+  }
+  .playall-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 22px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--navy);
+    background: var(--card);
+    color: var(--navy);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .playall-btn:hover { background: var(--accent-soft); }
+  .playall-btn.active {
+    background: var(--navy);
+    color: var(--on-accent);
+  }
+  .playall-btn svg { width: 14px; height: 14px; }
+  .playall-hint {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .phrase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .phrase-row { display: flex; gap: 12px; align-items: flex-start; transition: background 0.2s ease; }
+  .phrase-row.staff { justify-content: flex-start; }
+  .phrase-row.customer { justify-content: flex-end; }
+  .phrase-row.speaking .phrase-bubble {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+
+  .speaker-tag {
+    flex-shrink: 0;
+    width: 52px;
+    text-align: center;
+    font-size: 11px;
+    padding: 4px 0;
+    border-radius: var(--r-pill);
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .phrase-row.staff .speaker-tag {
+    background: var(--accent-soft);
+    color: var(--navy);
+  }
+  .phrase-row.customer .speaker-tag {
+    background: var(--card-alt);
+    color: var(--ink-soft);
+    order: 2;
+  }
+
+  .phrase-bubble {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 14px 18px;
+    max-width: 480px;
+  }
+  .phrase-row.staff .phrase-bubble {
+    border-top-left-radius: 4px;
+  }
+  .phrase-row.customer .phrase-bubble {
+    border-top-right-radius: 4px;
+    background: var(--card-alt);
+  }
+
+  .phrase-jp-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .phrase-jp {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .phrase-jp .furi {
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .phrase-jp .furi::after {
+    content: attr(data-kana);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    margin-bottom: 6px;
+    background: var(--navy);
+    color: var(--on-accent);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 9px;
+    border-radius: var(--r-sm);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .phrase-jp .furi:hover::after,
+  .phrase-jp .furi.show-tooltip::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .speak-btn {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .speak-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .speak-btn.playing { background: var(--navy); border-color: var(--navy); color: var(--on-accent); }
+  .speak-btn svg { width: 13px; height: 13px; }
+
+  .phrase-zh { font-size: 13px; color: var(--ink-soft); display: none; font-family: "Noto Sans TC", sans-serif; }
+
+  body.show-zh .phrase-zh { display: block; }
+
+  @media (max-width: 860px) {
+    .quiz-options { grid-template-columns: 1fr; }
+    .ref-grid { grid-template-columns: 1fr; }
+  }
+
+  :focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-title">日本商店街肉舖日語學習工具</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-sub">速查 ・ 單字卡 ・ 測驗 ・ 易混淆點</span>
+    <button class="theme-toggle" id="themeToggle" title="切換晝夜模式" aria-label="切換晝夜模式">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4.5"></circle>
+        <line x1="12" y1="2.5" x2="12" y2="5"></line>
+        <line x1="12" y1="19" x2="12" y2="21.5"></line>
+        <line x1="4.2" y1="4.2" x2="6" y2="6"></line>
+        <line x1="18" y1="18" x2="19.8" y2="19.8"></line>
+        <line x1="2.5" y1="12" x2="5" y2="12"></line>
+        <line x1="19" y1="12" x2="21.5" y2="12"></line>
+        <line x1="4.2" y1="19.8" x2="6" y2="18"></line>
+        <line x1="18" y1="6" x2="19.8" y2="4.2"></line>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<nav class="tabbar" id="modeTabbar">
+  <div class="tab-item active" data-mode="ref">速查表</div>
+  <div class="tab-item" data-mode="study">單字卡</div>
+  <div class="tab-item" data-mode="phrase">常用句</div>
+</nav>
+
+<nav class="subtabbar" id="catTabbar"></nav>
+
+<main class="main">
+
+  <!-- ============ REF (速査表) VIEW ============ -->
+  <section class="view active" id="view-ref">
+    <nav class="inner-tabbar" id="refInnerTabbar">
+      <div class="inner-tab-item active" data-submode="lookup">查詢</div>
+      <div class="inner-tab-item" data-submode="confuse">易混淆</div>
+    </nav>
+
+    <!-- 查詢子視圖 -->
+    <div class="inner-view active" id="ref-lookup">
+      <div class="ref-toolbar-row">
+        <p class="section-label" id="refLookupHint">點擊單字查看假名與中文意思</p>
+        <button class="phrase-toggle-btn" id="toggleRefZh" data-on="false">全顯示</button>
+      </div>
+      <div class="shape-filter-row" id="shapeFilterRow" style="display:none;"></div>
+      <div class="ref-grid" id="refGrid"></div>
+    </div>
+
+    <!-- 易混淆子視圖 -->
+    <div class="inner-view" id="ref-confuse">
+      <p class="section-label">容易混淆的單字組</p>
+      <div id="confuseList"></div>
+    </div>
+  </section>
+
+  <!-- ============ STUDY (flashcard) VIEW ============ -->
+  <section class="view" id="view-study">
+    <div class="study-toolbar-row">
+      <nav class="inner-tabbar" id="studyInnerTabbar">
+        <div class="inner-tab-item active" data-submode="memorize">記憶</div>
+        <div class="inner-tab-item" data-submode="quiz">測驗</div>
+      </nav>
+      <button class="direction-toggle-btn" id="directionToggleBtn" type="button" style="display:none;">切換為「中→日」</button>
+    </div>
+
+    <!-- 記憶子視圖 -->
+    <div class="inner-view active" id="study-memorize">
+      <p class="section-label">點擊卡片查看中文意思</p>
+      <div class="study-layout">
+        <div class="card-panel" id="flashcard">
+          <span class="card-index-tag" id="cardIndexTag">1 / 10</span>
+          <div class="card-jp" id="cardJp"></div>
+          <div class="card-kana" id="cardKana"></div>
+          <div class="card-zh" id="cardZh"></div>
+          <div class="card-hint" id="cardHint">點擊卡片看中文</div>
+        </div>
+        <div class="card-nav-row">
+          <button class="nav-btn" id="prevBtn">‹</button>
+          <span class="nav-counter" id="navCounter">1 / 10</span>
+          <button class="nav-btn" id="nextBtn">›</button>
+          <button class="shuffle-btn" id="shuffleBtn">隨機排序</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 測驗子視圖 -->
+    <div class="inner-view" id="study-quiz">
+      <div class="quiz-wrap">
+        <div class="quiz-progress" id="quizProgress">第 1 題 / 共 10 題</div>
+        <div id="quizContent">
+          <div class="quiz-panel">
+            <div class="quiz-question-label" id="quizQuestionLabel">這個單字的中文意思是？</div>
+            <div class="quiz-jp" id="quizJp"></div>
+            <div class="quiz-kana" id="quizKana"></div>
+          </div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+          <div class="quiz-footer">
+            <span class="quiz-score">得分 <strong id="scoreText">0 / 0</strong></span>
+            <button class="next-btn" id="nextQuestionBtn" disabled>下一題</button>
+          </div>
+        </div>
+        <div id="quizResultView" style="display:none;">
+          <div class="quiz-panel quiz-result">
+            <div class="big-score" id="finalScore">0 / 10</div>
+            <div class="result-msg" id="resultMsg"></div>
+            <button class="restart-btn" id="restartBtn">再測一次</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PHRASE (常用句) VIEW ============ -->
+  <section class="view" id="view-phrase">
+    <div class="phrase-toolbar">
+      <p class="section-label">依場景查看肉舖店員與顧客的常用對話。滑鼠移到日文上可看假名，點喇叭可播放發音</p>
+      <div class="phrase-toggle-group">
+        <button class="phrase-toggle-btn" id="toggleZh" data-on="false">中文</button>
+      </div>
+    </div>
+    <nav class="scene-tabbar" id="sceneTabbar"></nav>
+    <nav class="scenario-tabbar" id="scenarioTabbar"></nav>
+    <div class="playall-row">
+      <button class="playall-btn" id="playAllBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="playAllIcon">
+          <polygon points="6 4 20 12 6 20 6 4"></polygon>
+        </svg>
+        <span id="playAllLabel">全部播放本情境</span>
+      </button>
+    </div>
+    <div class="phrase-list" id="phraseList"></div>
+  </section>
+
+</main>
+
+<script>
+const VOCAB_DATA = {
+  beef: { label: "牛肉部位", items: [
+    { jp: "牛肉", kana: "ぎゅうにく", zh: "牛肉" },
+    { jp: "サーロイン", kana: "さーろいん", zh: "沙朗（腰脊肉）" },
+    { jp: "ヒレ", kana: "ひれ", zh: "菲力（腰內肉）" },
+    { jp: "リブロース", kana: "りぶろーす", zh: "肋眼" },
+    { jp: "肩ロース", kana: "かたろーす", zh: "肩胛里肌" },
+    { jp: "バラ肉", kana: "ばらにく", zh: "牛五花／三層肉" },
+    { jp: "もも肉", kana: "ももにく", zh: "腿肉" },
+    { jp: "すね肉", kana: "すねにく", zh: "腱子肉" },
+    { jp: "タン", kana: "たん", zh: "牛舌" },
+    { jp: "ハラミ", kana: "はらみ", zh: "橫膈肌肉（肋條）" },
+    { jp: "牛すじ", kana: "ぎゅうすじ", zh: "牛筋" },
+    { jp: "霜降り", kana: "しもふり", zh: "雪花紋（油花）" },
+    { jp: "赤身", kana: "あかみ", zh: "瘦肉" },
+  ]},
+  pork: { label: "豬肉部位", items: [
+    { jp: "豚肉", kana: "ぶたにく", zh: "豬肉" },
+    { jp: "ロース", kana: "ろーす", zh: "里肌（背肉）" },
+    { jp: "ヒレ", kana: "ひれ", zh: "腰內肉" },
+    { jp: "肩ロース", kana: "かたろーす", zh: "肩胛肉" },
+    { jp: "バラ肉", kana: "ばらにく", zh: "豬五花" },
+    { jp: "もも肉", kana: "ももにく", zh: "後腿肉" },
+    { jp: "豚トロ", kana: "ぶたとろ", zh: "松阪豬（下巴肉）" },
+    { jp: "豚足", kana: "とんそく", zh: "豬腳" },
+    { jp: "レバー", kana: "ればー", zh: "豬肝" },
+    { jp: "軟骨", kana: "なんこつ", zh: "軟骨" },
+    { jp: "挽き肉", kana: "ひきにく", zh: "絞肉" },
+  ]},
+  poultry_proc: { label: "雞肉・加工肉品", items: [
+    { jp: "鶏肉", kana: "とりにく", zh: "雞肉" },
+    { jp: "むね肉", kana: "むねにく", zh: "雞胸肉" },
+    { jp: "もも肉", kana: "ももにく", zh: "雞腿肉" },
+    { jp: "ささみ", kana: "ささみ", zh: "雞柳" },
+    { jp: "手羽先", kana: "てばさき", zh: "雞翅尖" },
+    { jp: "手羽元", kana: "てばもと", zh: "棒棒腿（翅根）" },
+    { jp: "砂肝", kana: "ずなぎも", zh: "雞胗" },
+    { jp: "ソーセージ", kana: "そーせーじ", zh: "香腸" },
+    { jp: "ベーコン", kana: "べーこん", zh: "培根" },
+    { jp: "ハム", kana: "はむ", zh: "火腿" },
+    { jp: "コロッケ", kana: "ころっけ", zh: "可樂餅" },
+    { jp: "ハンバーグ", kana: "はんばーぐ", zh: "漢堡排" },
+  ]},
+  cut_style: { label: "切法・處理方式", items: [
+    { jp: "薄切り", kana: "うすぎり", zh: "薄切" },
+    { jp: "厚切り", kana: "あつぎり", zh: "厚切" },
+    { jp: "角切り", kana: "かくぎり", zh: "切塊" },
+    { jp: "ブロック", kana: "ぶろっく", zh: "整塊（未切片）" },
+    { jp: "スライス", kana: "すらいす", zh: "切片" },
+    { jp: "切り落とし", kana: "きりおとし", zh: "邊角肉（碎切肉）" },
+    { jp: "筋切り", kana: "すじぎり", zh: "切筋（斷筋處理）" },
+    { jp: "下味", kana: "したあじ", zh: "預先調味" },
+    { jp: "真空パック", kana: "しんくうぱっく", zh: "真空包裝" },
+    { jp: "計り売り", kana: "はかりうり", zh: "依重量計價販售" },
+    { jp: "解凍", kana: "かいとう", zh: "解凍" },
+    { jp: "賞味期限", kana: "しょうみきげん", zh: "賞味期限" },
+  ]},
+};
+
+const CONFUSE_GROUPS = [
+  {
+    title: "牛肉部位易混：サーロイン vs リブロース vs ヒレ",
+    items: [
+      { jp: "サーロイン", kana: "さーろいん", zh: "腰脊肉，油花均勻、肉質軟嫩" },
+      { jp: "リブロース", kana: "りぶろーす", zh: "肋眼，油花最豐富、風味濃郁" },
+      { jp: "ヒレ", kana: "ひれ", zh: "菲力，幾乎無油脂、口感細嫩" },
+    ],
+  },
+  {
+    title: "切法易混：薄切り vs 厚切り vs ブロック",
+    items: [
+      { jp: "薄切り", kana: "うすぎり", zh: "薄片，適合涮鍋、燒肉" },
+      { jp: "厚切り", kana: "あつぎり", zh: "厚片，適合煎牛排" },
+      { jp: "ブロック", kana: "ぶろっく", zh: "整塊未切，顧客自行決定切法" },
+    ],
+  },
+  {
+    title: "豬肉部位易混：ロース vs 肩ロース vs バラ肉",
+    items: [
+      { jp: "ロース", kana: "ろーす", zh: "背部里肌，瘦肉為主，少許油邊" },
+      { jp: "肩ロース", kana: "かたろーす", zh: "肩胛部位，油花較多、肉質鮮嫩" },
+      { jp: "バラ肉", kana: "ばらにく", zh: "五花肉，肥瘦交疊、適合炒煮" },
+    ],
+  },
+  {
+    title: "雞肉部位易混：むね肉 vs もも肉 vs ささみ",
+    items: [
+      { jp: "むね肉", kana: "むねにく", zh: "雞胸肉，脂肪少、肉質較乾" },
+      { jp: "もも肉", kana: "ももにく", zh: "雞腿肉，油脂較多、口感多汁" },
+      { jp: "ささみ", kana: "ささみ", zh: "雞柳，最瘦的部位、纖維細" },
+    ],
+  },
+  {
+    title: "絞肉相關易混：挽き肉 vs 切り落とし vs ブロック",
+    items: [
+      { jp: "挽き肉", kana: "ひきにく", zh: "絞肉，已絞碎，做漢堡排或肉丸用" },
+      { jp: "切り落とし", kana: "きりおとし", zh: "邊角肉，不規則切片，價格較實惠" },
+      { jp: "ブロック", kana: "ぶろっく", zh: "整塊肉，未經切割加工" },
+    ],
+  },
+  {
+    title: "保存標示易混：賞味期限 vs 消費期限 vs 加工日",
+    items: [
+      { jp: "賞味期限", kana: "しょうみきげん", zh: "最佳賞味期限（風味保證期）" },
+      { jp: "消費期限", kana: "しょうひきげん", zh: "保存期限（安全食用期限）" },
+      { jp: "加工日", kana: "かこうび", zh: "加工或分切的日期" },
+    ],
+  },
+];
+
+// 漢字詞 → 假名讀音字典（用於常用句頁面 hover 顯示假名）
+// 依詞長由長到短排序比對，避免誤切
+const KANJI_READINGS = [
+  ["いらっしゃいませ", "いらっしゃいませ"],
+  ["かしこまりました", "かしこまりました"],
+  ["承知いたしました", "しょうちいたしました"],
+  ["承知しております", "しょうちしております"],
+  ["承知いたします", "しょうちいたします"],
+  ["申し訳ございません", "もうしわけございません"],
+  ["申し訳ございませんでした", "もうしわけございませんでした"],
+  ["大変申し訳ございません", "たいへんもうしわけございません"],
+  ["大変失礼いたしました", "たいへんしつれいいたしました"],
+  ["失礼いたします", "しつれいいたします"],
+  ["失礼いたしました", "しつれいいたしました"],
+  ["恐れ入ります", "おそれいります"],
+  ["恐れ入りますが", "おそれいりますが"],
+  ["お待たせいたしました", "おまたせいたしました"],
+  ["お待たせし", "おまたせし"],
+  ["お待ちいただけますでしょうか", "おまちいただけますでしょうか"],
+  ["お待ちくださいませ", "おまちくださいませ"],
+  ["お待ちください", "おまちください"],
+  ["少々お待ち", "しょうしょうおまち"],
+  ["少々お待ちくださいませ", "しょうしょうおまちくださいませ"],
+  ["少々お待ちいただけますでしょうか", "しょうしょうおまちいただけますでしょうか"],
+  ["お伺いいたします", "おうかがいいたします"],
+  ["お伺いします", "おうかがいします"],
+  ["伺います", "うかがいます"],
+  ["伺って", "うかがって"],
+  ["お切りいたします", "おきりいたします"],
+  ["お切りしましょうか", "おきりしましょうか"],
+  ["切らせていただきます", "きらせていただきます"],
+  ["切っていただけますか", "きっていただけますか"],
+  ["切っていただけますでしょうか", "きっていただけますでしょうか"],
+  ["薄めに切って", "うすめにきって"],
+  ["厚めに切って", "あつめにきって"],
+  ["半分に切って", "はんぶんにきって"],
+  ["小さく切って", "ちいさくきって"],
+  ["筋を切って", "すじをきって"],
+  ["筋切りをして", "すじぎりをして"],
+  ["筋切りしておきます", "すじぎりしておきます"],
+  ["味付けして", "あじつけして"],
+  ["下味をつけて", "したあじをつけて"],
+  ["下味をつけておきます", "したあじをつけておきます"],
+  ["味付けしておきましょうか", "あじつけしておきましょうか"],
+  ["お好みで", "おこのみで"],
+  ["お好みの厚さで", "おこのみのあつさで"],
+  ["お好みの量で", "おこのみのりょうで"],
+  ["どのくらいの厚さに", "どのくらいのあつさに"],
+  ["どのくらいの量", "どのくらいのりょう"],
+  ["何グラムほど", "なんぐらむほど"],
+  ["三百グラムほど", "さんびゃくぐらむほど"],
+  ["五百グラムほど", "ごひゃくぐらむほど"],
+  ["二百グラムほど", "にひゃくぐらむほど"],
+  ["一キロほど", "いちきろほど"],
+  ["少し多めに", "すこしおおめに"],
+  ["少し少なめに", "すこしすくなめに"],
+  ["計り売り", "はかりうり"],
+  ["計ってみます", "はかってみます"],
+  ["計量いたします", "けいりょういたします"],
+  ["量って", "はかって"],
+  ["重さを量る", "おもさをはかる"],
+  ["何人前", "なんにんまえ"],
+  ["二人前", "ににんまえ"],
+  ["四人前", "よにんまえ"],
+  ["何用ですか", "なにようですか"],
+  ["焼肉用", "やきにくよう"],
+  ["すき焼き用", "すきやきよう"],
+  ["しゃぶしゃぶ用", "しゃぶしゃぶよう"],
+  ["カレー用", "かれーよう"],
+  ["煮込み用", "にこみよう"],
+  ["炒め物用", "いためものよう"],
+  ["とんかつ用", "とんかつよう"],
+  ["ステーキ用", "すてーきよう"],
+  ["唐揚げ用", "からあげよう"],
+  ["何に使われますか", "なににつかわれますか"],
+  ["どのような料理に", "どのようなりょうりに"],
+  ["お料理は何を", "おりょうりはなにを"],
+  ["おすすめ", "おすすめ"],
+  ["おすすめでございます", "おすすめでございます"],
+  ["おすすめいたします", "おすすめいたします"],
+  ["こちらがおすすめです", "こちらがおすすめです"],
+  ["こちらの部位は", "こちらのぶいは"],
+  ["この部位は", "このぶいは"],
+  ["この部位ですと", "このぶいですと"],
+  ["脂が多い", "あぶらがおおい"],
+  ["脂が少ない", "あぶらがすくない"],
+  ["脂身", "あぶらみ"],
+  ["脂身が少なめ", "あぶらみがすくなめ"],
+  ["脂身が多め", "あぶらみがおおめ"],
+  ["柔らかい", "やわらかい"],
+  ["柔らかくて", "やわらかくて"],
+  ["柔らかい部位です", "やわらかいぶいです"],
+  ["歯ごたえがあります", "はごたえがあります"],
+  ["さっぱりしています", "さっぱりしています"],
+  ["脂の旨味が強い", "あぶらのうまみがつよい"],
+  ["旨味が強い", "うまみがつよい"],
+  ["旨味が出ます", "うまみがでます"],
+  ["コクがあります", "こくがあります"],
+  ["国産でございます", "こくさんでございます"],
+  ["国産牛", "こくさんぎゅう"],
+  ["輸入牛", "ゆにゅうぎゅう"],
+  ["和牛", "わぎゅう"],
+  ["黒毛和牛", "くろげわぎゅう"],
+  ["産地", "さんち"],
+  ["産地はどちらですか", "さんちはどちらですか"],
+  ["こちらは国産の", "こちらはこくさんの"],
+  ["こちらは輸入の", "こちらはゆにゅうの"],
+  ["新鮮でございます", "しんせんでございます"],
+  ["新鮮なものを", "しんせんなものを"],
+  ["本日入荷した", "ほんじついにゅうしたした"],
+  ["今朝入荷した", "けさいにゅうした"],
+  ["入荷したばかり", "にゅうかしたばかり"],
+  ["入荷予定", "にゅうかよてい"],
+  ["仕入れたばかり", "しいれたばかり"],
+  ["在庫を確認いたします", "ざいこをかくにんいたします"],
+  ["在庫がございます", "ざいこがございます"],
+  ["在庫を切らしております", "ざいこをきらしております"],
+  ["品切れでございます", "しなぎれでございます"],
+  ["申し訳ございませんが品切れです", "もうしわけございませんがしなぎれです"],
+  ["売り切れてしまいました", "うりきれてしまいました"],
+  ["明日には入荷いたします", "あしたにはにゅうかいたします"],
+  ["次回の入荷は", "じかいのにゅうかは"],
+  ["取り寄せることができます", "とりよせることができます"],
+  ["取り寄せいたします", "とりよせいたします"],
+  ["ご予約いただければ", "ごよやくいただければ"],
+  ["ご予約を承ります", "ごよやくをうけたまわります"],
+  ["お取り置きいたします", "おとりおきいたします"],
+  ["お取り置きできます", "おとりおきできます"],
+  ["値段", "ねだん"],
+  ["お値段は", "おねだんは"],
+  ["百グラムあたり", "ひゃくぐらむあたり"],
+  ["百グラムにつき", "ひゃくぐらむにつき"],
+  ["税込みで", "ぜいこみで"],
+  ["税抜きで", "ぜいぬきで"],
+  ["お会計", "おかいけい"],
+  ["お会計でございます", "おかいけいでございます"],
+  ["お会計は", "おかいけいは"],
+  ["こちらお会計でございます", "こちらおかいけいでございます"],
+  ["合計", "ごうけい"],
+  ["お合計で", "おごうけいで"],
+  ["千二百円でございます", "せんにひゃくえんでございます"],
+  ["二千八百円でございます", "にせんはっぴゃくえんでございます"],
+  ["八百円でございます", "はっぴゃくえんでございます"],
+  ["現金でお願いします", "げんきんでおねがいします"],
+  ["カードは使えますか", "かーどはつかえますか"],
+  ["カードもご利用いただけます", "かーどもごりよういただけます"],
+  ["電子マネー", "でんしまねー"],
+  ["電子マネーもご利用いただけます", "でんしまねーもごりよういただけます"],
+  ["保冷剤", "ほれいざい"],
+  ["保冷剤をお入れしますか", "ほれいざいをおいれしますか"],
+  ["保冷剤をお入れしましょうか", "ほれいざいをおいれしましょうか"],
+  ["保冷剤お付けします", "ほれいざいおつけします"],
+  ["保冷バッグ", "ほれいばっぐ"],
+  ["氷を入れておきます", "こおりをいれておきます"],
+  ["真空パックにしますか", "しんくうぱっくにしますか"],
+  ["真空パックにいたしましょうか", "しんくうぱっくにいたしましょうか"],
+  ["真空パックでお願いします", "しんくうぱっくでおねがいします"],
+  ["袋を二重にしますか", "ふくろをにじゅうにしますか"],
+  ["袋を分けますか", "ふくろをわけますか"],
+  ["分けてお包みします", "わけておつつみします"],
+  ["それぞれ分けて", "それぞれわけて"],
+  ["一緒に入れて", "いっしょにいれて"],
+  ["一緒にお包みします", "いっしょにおつつみします"],
+  ["お包みいたします", "おつつみいたします"],
+  ["持ち帰り時間", "もちかえりじかん"],
+  ["持ち帰りまでお時間は", "もちかえりまでおじかんは"],
+  ["お持ち帰りまでどのくらい", "おもちかえりまでどのくらい"],
+  ["冷蔵庫に入れて", "れいぞうこにいれて"],
+  ["冷凍してください", "れいとうしてください"],
+  ["冷凍保存できます", "れいとうほぞんできます"],
+  ["解凍してから", "かいとうしてから"],
+  ["解凍する際は", "かいとうするさいは"],
+  ["賞味期限", "しょうみきげん"],
+  ["消費期限", "しょうひきげん"],
+  ["賞味期限は本日中です", "しょうみきげんはほんじつちゅうです"],
+  ["賞味期限は明日までです", "しょうみきげんはあしたまでです"],
+  ["お早めにお召し上がりください", "おはやめにおめしあがりください"],
+  ["お早めにご利用くださいませ", "おはやめにごりようくださいませ"],
+  ["加工日", "かこうび"],
+  ["産地直送", "さんちちょくそう"],
+  ["特売", "とくばい"],
+  ["本日特売", "ほんじつとくばい"],
+  ["お得でございます", "おとくでございます"],
+  ["お買い得です", "おかいどくです"],
+  ["セール中です", "せーるちゅうです"],
+  ["割引いたします", "わりびきいたします"],
+  ["少しお安くできます", "すこしおやすくできます"],
+  ["まとめ買い", "まとめがい"],
+  ["まとめてお買い上げいただくと", "まとめておかいあげいただくと"],
+  ["こちらもいかがですか", "こちらもいかがですか"],
+  ["一緒にいかがですか", "いっしょにいかがですか"],
+  ["合わせていかがですか", "あわせていかがですか"],
+  ["おすすめの食べ方", "おすすめのたべかた"],
+  ["美味しい食べ方", "おいしいたべかた"],
+  ["焼き方のコツ", "やきかたのこつ"],
+  ["こう焼くと美味しいです", "こうやくとおいしいです"],
+  ["強火で焼いて", "つよびでやいて"],
+  ["中火でじっくり", "ちゅうびでじっくり"],
+  ["弱火でゆっくり", "よわびでゆっくり"],
+  ["塩こしょうだけで", "しおこしょうだけで"],
+  ["タレに漬けて", "たれにつけて"],
+  ["お肉に合うタレ", "おにくにあうたれ"],
+  ["こちらのタレもおすすめです", "こちらのたれもおすすめです"],
+  ["何名様分", "なんめいさまぶん"],
+  ["バーベキューに使います", "ばーべきゅーにつかいます"],
+  ["お弁当用に", "おべんとうように"],
+  ["子供用に", "こどもように"],
+  ["小分けにできますか", "こわけにできますか"],
+  ["小分けにいたします", "こわけにいたします"],
+  ["少量でも大丈夫ですか", "しょうりょうでもだいじょうぶですか"],
+  ["少量でも承ります", "しょうりょうでもうけたまわります"],
+  ["お一つからでも", "おひとつからでも"],
+  ["他に何かございますか", "ほかになにかございますか"],
+  ["他にご注文は", "ほかにごちゅうもんは"],
+  ["以上でよろしいでしょうか", "いじょうでよろしいでしょうか"],
+  ["こちらで全部でしょうか", "こちらでぜんぶでしょうか"],
+  ["承りました", "うけたまわりました"],
+  ["少々お時間をいただきます", "しょうしょうおじかんをいただきます"],
+  ["少々お時間をください", "しょうしょうおじかんをください"],
+  ["五分ほどお時間をいただきます", "ごふんほどおじかんをいただきます"],
+  ["店内でご覧になりますか", "てんないでごらんになりますか"],
+  ["こちらをご覧くださいませ", "こちらをごらんくださいませ"],
+  ["陳列ケース", "ちんれつけーす"],
+  ["ショーケース", "しょーけーす"],
+  ["気になる部位はございますか", "きになるぶいはございますか"],
+  ["お探しの部位はございますか", "おさがしのぶいはございますか"],
+  ["何かお探しですか", "なにかおさがしですか"],
+  ["どのようなお肉をお探しですか", "どのようなおにくをおさがしですか"],
+  ["お探しの商品はこちらです", "おさがしのしょうひんはこちらです"],
+  ["ご注文ありがとうございます", "ごちゅうもんありがとうございます"],
+  ["ありがとうございます", "ありがとうございます"],
+  ["ありがとうございました", "ありがとうございました"],
+  ["またお越しくださいませ", "またおこしくださいませ"],
+  ["またのご来店をお待ちしております", "またのごらいてんをおまちしております"],
+  ["お気をつけてお帰りくださいませ", "おきをつけてお帰りくださいませ"],
+  ["お気をつけて", "おきをつけて"],
+  ["それでは", "それでは"],
+  ["わかりました", "わかりました"],
+  ["承知しました", "しょうちしました"],
+  ["大丈夫です", "だいじょうぶです"],
+  ["それで結構です", "それでけっこうです"],
+  ["それでお願いします", "それでおねがいします"],
+  ["助かります", "たすかります"],
+  ["それは助かります", "それはたすかります"],
+  ["とても助かります", "とてもたすかります"],
+];
+
+KANJI_READINGS.sort((a, b) => b[0].length - a[0].length);
+
+function buildFuriganaHTML(text) {
+  let result = '';
+  let i = 0;
+  while (i < text.length) {
+    let matched = false;
+    for (const [word, kana] of KANJI_READINGS) {
+      if (text.startsWith(word, i) && /[\u4E00-\u9FFF]/.test(word)) {
+        result += `<span class="furi" data-kana="${kana}">${word}</span>`;
+        i += word.length;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      result += text[i];
+      i += 1;
+    }
+  }
+  return result;
+}
+
+// 常用句：依場景分類，每個場景再分情境，每句標明說話者（staff=店員 / customer=客人）
+const PHRASE_DATA = {
+  counter: {
+    label: "櫃台選購",
+    scenarios: [
+      {
+        label: "情境一：詢問部位與用途",
+        items: [
+          { speaker: "staff", jp: "いらっしゃいませ。本日はどのようなお肉をお探しですか？", kana: "いらっしゃいませ。ほんじつはどのようなおにくをおさがしですか？", zh: "歡迎光臨,今天想找什麼樣的肉呢？" },
+          { speaker: "customer", jp: "今夜すき焼きをする予定なので、牛肉が欲しいです。", kana: "こんやすきやきをするよていなので、ぎゅうにくがほしいです。", zh: "今晚打算吃壽喜燒,所以想要牛肉。" },
+          { speaker: "staff", jp: "承知いたしました。すき焼き用でしたら、リブロースか肩ロースがおすすめでございます。", kana: "しょうちいたしました。すきやきようでしたら、りぶろーすかかたろーすがおすすめでございます。", zh: "了解了,如果是壽喜燒用的話,推薦肋眼或肩胛里肌。" },
+          { speaker: "customer", jp: "二つの違いは何ですか？", kana: "ふたつのちがいはなんですか？", zh: "這兩種有什麼差別呢？" },
+          { speaker: "staff", jp: "リブロースは脂の旨味が強く、肩ロースは赤身と脂のバランスが良い部位でございます。", kana: "りぶろーすはあぶらのうまみがつよく、かたろーすはあかみとあぶらのばらんすがよいぶいでございます。", zh: "肋眼的脂肪香味比較濃,肩胛里肌則是瘦肉與油脂的比例較均衡。" },
+          { speaker: "customer", jp: "それでは肩ロースでお願いします。薄切りにしていただけますか？", kana: "それではかたろーすでおねがいします。うすぎりにしていただけますか？", zh: "那麼請給我肩胛里肌,可以幫我切薄片嗎？" },
+          { speaker: "staff", jp: "承知いたしました。何グラムほどご用意いたしましょうか。", kana: "しょうちいたしました。なんぐらむほどごよういいたしましょうか。", zh: "了解了,大概要為您準備多少呢？" },
+          { speaker: "customer", jp: "四人前なので、五百グラムほどお願いします。", kana: "よにんまえなので、ごひゃくぐらむほどおねがいします。", zh: "四人份左右,所以請給我五百克。" },
+          { speaker: "staff", jp: "かしこまりました。少々お待ちくださいませ。", kana: "かしこまりました。しょうしょうおまちくださいませ。", zh: "好的,請稍候。" },
+          { speaker: "staff", jp: "お待たせいたしました。肩ロースの薄切り五百グラムでございます。", kana: "おまたせいたしました。かたろーすのうすぎりごひゃくぐらむでございます。", zh: "讓您等候了,這是肩胛里肌薄片五百克。" },
+          { speaker: "customer", jp: "ありがとうございます。お会計はおいくらですか？", kana: "ありがとうございます。おかいけいはおいくらですか？", zh: "謝謝你,結帳是多少呢？" },
+          { speaker: "staff", jp: "お会計、二千八百円でございます。", kana: "おかいけい、にせんはっぴゃくえんでございます。", zh: "結帳金額是兩千八百日圓。" },
+          { speaker: "customer", jp: "カードでお願いします。", kana: "かーどでおねがいします。", zh: "請用信用卡付款。" },
+          { speaker: "staff", jp: "承知いたしました。ありがとうございます。", kana: "しょうちいたしました。ありがとうございます。", zh: "了解了,謝謝您。" },
+        ],
+      },
+      {
+        label: "情境二：依重量計價的細切要求",
+        items: [
+          { speaker: "customer", jp: "すみません、豚のロースが欲しいのですが、何グラムから買えますか？", kana: "すみません、ぶたのろーすがほしいのですが、なんぐらむからかえますか？", zh: "不好意思,我想買豬里肌,最少可以買多少克呢？" },
+          { speaker: "staff", jp: "当店は計り売りでございますので、お一つからでもご注文いただけます。", kana: "とうてんははかりうりでございますので、おひとつからでもごちゅうもんいただけます。", zh: "本店是依重量計價販售,所以從少量也可以為您準備。" },
+          { speaker: "customer", jp: "それでは二百グラムほどお願いします。とんかつ用に厚めに切ってもらえますか？", kana: "それではにひゃくぐらむほどおねがいします。とんかつようにあつめにきってもらえますか？", zh: "那麼請給我兩百克左右,因為要做炸豬排,可以幫我切厚一點嗎？" },
+          { speaker: "staff", jp: "承知いたしました。とんかつ用でしたら、一枚一センチほどの厚さが食べやすいかと存じます。", kana: "しょうちいたしました。とんかつようでしたら、いちまいいっせんちほどのあつさがたべやすいかとぞんじます。", zh: "了解了,如果是炸豬排用的話,一片大約一公分厚比較好入口。" },
+          { speaker: "customer", jp: "それでお願いします。筋切りもしておいてもらえますか？", kana: "それでおねがいします。すじぎりもしておいてもらえますか？", zh: "那就麻煩你了,也可以幫我切筋處理嗎？" },
+          { speaker: "staff", jp: "もちろんでございます。筋切りをしておきますと、揚げた際に縮みにくくなります。", kana: "もちろんでございます。すじぎりをしておきますと、あげたさいにちぢみにくくなります。", zh: "當然可以,切筋處理後,炸的時候會比較不容易縮起來。" },
+          { speaker: "customer", jp: "それは助かります、お願いします。", kana: "それはたすかります、おねがいします。", zh: "那真是太好了,麻煩你了。" },
+          { speaker: "staff", jp: "お待たせいたしました。厚切りのロース肉、筋切り済みでございます。", kana: "おまたせいたしました。あつぎりのろーすにく、すじぎりずみでございます。", zh: "讓您等候了,這是厚切的里肌肉,已經處理過筋了。" },
+          { speaker: "customer", jp: "ありがとうございます。保冷剤を入れていただけますか？", kana: "ありがとうございます。ほれいざいをいれていただけますか？", zh: "謝謝你,可以幫我放保冷劑嗎？" },
+          { speaker: "staff", jp: "かしこまりました。保冷剤をお入れいたします。", kana: "かしこまりました。ほれいざいをおいれいたします。", zh: "好的,我幫您放保冷劑。" },
+          { speaker: "customer", jp: "持ち帰るまで一時間ほどかかるのですが、大丈夫でしょうか。", kana: "もちかえるまでいちじかんほどかかるのですが、だいじょうぶでしょうか。", zh: "我要花大概一小時才能帶回家,這樣沒問題嗎？" },
+          { speaker: "staff", jp: "保冷剤を多めにお入れいたしますので、問題ございません。", kana: "ほれいざいをおおめにおいれいたしますので、もんだいございません。", zh: "我會多放一些保冷劑,所以沒有問題。" },
+          { speaker: "customer", jp: "ありがとうございます、助かります。", kana: "ありがとうございます、たすかります。", zh: "謝謝你,幫了大忙。" },
+        ],
+      },
+      {
+        label: "情境三：產地與品質詢問",
+        items: [
+          { speaker: "customer", jp: "すみません、こちらの牛肉の産地はどちらですか？", kana: "すみません、こちらのぎゅうにくのさんちはどちらですか？", zh: "不好意思,這個牛肉的產地是哪裡呢？" },
+          { speaker: "staff", jp: "こちらは国産の黒毛和牛でございます。", kana: "こちらはこくさんのくろげわぎゅうでございます。", zh: "這個是國產的黑毛和牛。" },
+          { speaker: "customer", jp: "輸入牛との違いはありますか？", kana: "ゆにゅうぎゅうとのちがいはありますか？", zh: "和進口牛肉有什麼差別呢？" },
+          { speaker: "staff", jp: "和牛は霜降りが多く、柔らかい食感が特徴でございます。輸入牛は赤身が多く、さっぱりした味わいでございます。", kana: "わぎゅうはしもふりがおおく、やわらかいしょっかんがとくちょうでございます。ゆにゅうぎゅうはあかみがおおく、さっぱりしたあじわいでございます。", zh: "和牛的雪花紋較多,口感柔軟是它的特徵;進口牛肉瘦肉較多,口味比較清爽。" },
+          { speaker: "customer", jp: "予算的に輸入牛の方が良さそうです。ステーキ用に切ってもらえますか？", kana: "よさんてきにゆにゅうぎゅうのほうがよさそうです。すてーきようにきってもらえますか？", zh: "考慮預算的話,進口牛肉似乎比較好。可以幫我切牛排用的厚度嗎？" },
+          { speaker: "staff", jp: "承知いたしました。ステーキ用でしたら、二センチほどの厚さでお切りいたします。", kana: "しょうちいたしました。すてーきようでしたら、にせんちほどのあつさでおきりいたします。", zh: "了解了,如果是牛排用的話,我幫您切大約兩公分厚。" },
+          { speaker: "customer", jp: "何グラムずつにしてもらえますか？", kana: "なんぐらむずつにしてもらえますか？", zh: "可以幫我切成每片多少克呢？" },
+          { speaker: "staff", jp: "一枚二百グラムほどでよろしいでしょうか。", kana: "いちまいにひゃくぐらむほどでよろしいでしょうか。", zh: "一片大約兩百克這樣可以嗎？" },
+          { speaker: "customer", jp: "はい、それで二枚お願いします。", kana: "はい、それでにまいおねがいします。", zh: "好的,那請給我兩片。" },
+          { speaker: "staff", jp: "かしこまりました。塩こしょうだけで焼いても十分美味しい部位でございます。", kana: "かしこまりました。しおこしょうだけでやいてもじゅうぶんおいしいぶいでございます。", zh: "好的,這個部位只用鹽和黑胡椒煎也非常好吃。" },
+          { speaker: "customer", jp: "それは楽しみです。賞味期限はいつまでですか？", kana: "それはたのしみです。しょうみきげんはいつまでですか？", zh: "那很值得期待呢,賞味期限到什麼時候呢？" },
+          { speaker: "staff", jp: "本日加工したものですので、明日までにお召し上がりいただくのがおすすめでございます。", kana: "ほんじつかこうしたものですので、あしたまでにおめしあがりいただくのがおすすめでございます。", zh: "因為是今天分切的,建議在明天之前食用完畢。" },
+          { speaker: "customer", jp: "わかりました、ありがとうございます。", kana: "わかりました、ありがとうございます。", zh: "了解了,謝謝你。" },
+        ],
+      },
+      {
+        label: "情境四：缺貨應對與預訂",
+        items: [
+          { speaker: "customer", jp: "すみません、ハラミはありますか？", kana: "すみません、はらみはありますか？", zh: "不好意思,有橫膈肌肉（肋條）嗎？" },
+          { speaker: "staff", jp: "申し訳ございませんが、本日ハラミは品切れでございます。", kana: "もうしわけございませんが、ほんじつはらみはしなぎれでございます。", zh: "非常抱歉,今天橫膈肌肉已經賣完了。" },
+          { speaker: "customer", jp: "そうですか、残念です。次の入荷はいつ頃ですか？", kana: "そうですか、ざんねんです。つぎのにゅうかはいつごろですか？", zh: "這樣啊,真可惜,下次進貨大概什麼時候呢？" },
+          { speaker: "staff", jp: "次回の入荷は明後日の予定でございます。ご予約いただければお取り置きいたします。", kana: "じかいのにゅうかはあさってのよていでございます。ごよやくいただければおとりおきいたします。", zh: "下次進貨預計是後天,如果您先預約的話,我們會為您保留。" },
+          { speaker: "customer", jp: "それではお願いします。三百グラムほど予約できますか？", kana: "それではおねがいします。さんびゃくぐらむほどよやくできますか？", zh: "那麼麻煩你了,可以預約三百克左右嗎？" },
+          { speaker: "staff", jp: "承知いたしました。お名前とお電話番号をいただけますでしょうか。", kana: "しょうちいたしました。おなまえとおでんわばんごうをいただけますでしょうか。", zh: "了解了,可以給我您的姓名和電話號碼嗎？" },
+          { speaker: "customer", jp: "田中です。電話番号は090から始まります。", kana: "たなかです。でんわばんごうは090からはじまります。", zh: "我姓田中,電話號碼是090開頭。" },
+          { speaker: "staff", jp: "ありがとうございます。田中様、三百グラムでご予約承りました。", kana: "ありがとうございます。たなかさま、さんびゃくぐらむでごよやくうけたまわりました。", zh: "謝謝您,田中先生／小姐,已經為您預約三百克。" },
+          { speaker: "customer", jp: "代わりに今日買えるおすすめの部位はありますか？", kana: "かわりにきょうかえるおすすめのぶいはありますか？", zh: "有沒有今天可以買的替代推薦部位呢？" },
+          { speaker: "staff", jp: "牛すじでしたら本日入荷したばかりで、煮込み料理におすすめでございます。", kana: "ぎゅうすじでしたらほんじついにゅうしたばかりで、にこみりょうりにおすすめでございます。", zh: "如果是牛筋的話,今天剛進貨,推薦做燉煮料理。" },
+          { speaker: "customer", jp: "それでは牛すじを少し試してみます。", kana: "それではぎゅうすじをすこしためしてみます。", zh: "那我試試看買一點牛筋。" },
+          { speaker: "staff", jp: "かしこまりました。下味をつけておきましょうか。", kana: "かしこまりました。したあじをつけておきましょうか。", zh: "好的,要幫您先做基礎調味嗎？" },
+          { speaker: "customer", jp: "お願いします、ありがとうございます。", kana: "おねがいします、ありがとうございます。", zh: "麻煩你了,謝謝你。" },
+        ],
+      },
+    ],
+  },
+  staff_training: {
+    label: "店員培訓",
+    scenarios: [
+      {
+        label: "情境一：認識牛肉部位與分切",
+        items: [
+          { speaker: "staff", jp: "今日は牛肉の部位について教えます。まずサーロインとリブロースの違いを覚えましょう。", kana: "きょうはぎゅうにくのぶいについておしえます。まずさーろいんとりぶろーすのちがいをおぼえましょう。", zh: "今天要教大家牛肉的部位,首先記住沙朗和肋眼的差別。" },
+          { speaker: "staffB", jp: "サーロインはどの部分にあたりますか？", kana: "さーろいんはどのぶぶんにあたりますか？", zh: "沙朗是對應哪個部位呢？" },
+          { speaker: "staff", jp: "サーロインは腰の上部の肉で、霜降りが入りやすく柔らかいのが特徴です。", kana: "さーろいんはこしのじょうぶのにくで、しもふりがはいりやすくやわらかいのがとくちょうです。", zh: "沙朗是腰部上方的肉,容易有雪花油花,口感柔嫩是它的特徵。" },
+          { speaker: "staffB", jp: "リブロースはあばらの近くですか？", kana: "りぶろーすはあばらのちかくですか？", zh: "肋眼是在肋骨附近嗎？" },
+          { speaker: "staff", jp: "そうです。リブロースは肋骨の周りの肉で、脂が多く旨味が強いです。お客様に説明する時は、その違いを伝えましょう。", kana: "そうです。りぶろーすはろっこつのまわりのにくで、あぶらがおおくうまみがつよいです。おきゃくさまにせつめいするときは、そのちがいをつたえましょう。", zh: "對的,肋眼是肋骨周圍的肉,油脂較多、風味濃郁。對顧客說明時,要把這個差異講清楚。" },
+          { speaker: "staffB", jp: "切る時の包丁の角度も大切ですか？", kana: "きるときのほうちょうのかくどもたいせつですか？", zh: "切的時候菜刀的角度也很重要嗎？" },
+          { speaker: "staff", jp: "はい、繊維の向きに沿って切ることが大切です。逆に切ると硬く感じやすくなります。", kana: "はい、せんいのむきにそってきることがたいせつです。さかさにきるとかたくかんじやすくなります。", zh: "是的,順著肉的纖維方向切很重要,如果反方向切會讓肉感覺比較硬。" },
+          { speaker: "staffB", jp: "薄切りにする時のコツはありますか？", kana: "うすぎりにするときのこつはありますか？", zh: "切薄片的時候有什麼訣竅嗎？" },
+          { speaker: "staff", jp: "お肉を少し冷やしてから切ると、形が崩れにくく綺麗に薄切りができます。", kana: "おにくをすこしひやしてからきると、かたちがくずれにくくきれいにうすぎりができます。", zh: "把肉稍微冰過再切,形狀比較不容易散掉,可以切出漂亮的薄片。" },
+          { speaker: "staffB", jp: "わかりました、練習してみます。", kana: "わかりました、れんしゅうしてみます。", zh: "了解了,我來練習看看。" },
+          { speaker: "staff", jp: "良いと思います。最初はゆっくりで構わないので、安全第一で進めてください。", kana: "いいとおもいます。さいしょはゆっくりでかまわないので、あんぜんだいいちですすめてください。", zh: "我覺得不錯,一開始慢慢來沒關係,請以安全為第一優先進行。" },
+        ],
+      },
+      {
+        label: "情境二：豬肉與雞肉的接待用語",
+        items: [
+          { speaker: "staff", jp: "豚肉のロースと肩ロースは、お客様によく聞かれる質問です。説明の練習をしましょう。", kana: "ぶたにくのろーすとかたろーすは、おきゃくさまによくきかれるしつもんです。せつめいのれんしゅうをしましょう。", zh: "豬肉的里肌和肩胛肉,是顧客常問的問題,我們來練習怎麼說明。" },
+          { speaker: "staffB", jp: "ロースは脂が少ないと説明すればいいですか？", kana: "ろーすはあぶらがすくないとせつめいすればいいですか？", zh: "我可以說里肌的油脂比較少嗎？" },
+          { speaker: "staff", jp: "そうです。ロースは赤身が多くさっぱりしていて、肩ロースは脂のバランスが良く柔らかいと伝えましょう。", kana: "そうです。ろーすはあかみがおおくさっぱりしていて、かたろーすはあぶらのばらんすがよくやわらかいとつたえましょう。", zh: "對,要跟顧客說里肌瘦肉較多、口味清爽,肩胛肉則是油脂比例均衡、口感柔嫩。" },
+          { speaker: "staffB", jp: "とんかつ用に薄すぎず切るには、どのくらいの厚さがいいですか？", kana: "とんかつようにうすすぎずきるには、どのくらいのあつさがいいですか？", zh: "如果是炸豬排用、不要切太薄,大概多厚比較好呢？" },
+          { speaker: "staff", jp: "一センチから一・五センチほどが食べやすいです。お客様の好みも聞いてあげましょう。", kana: "いっせんちからいってんごせんちほどがたべやすいです。おきゃくさまのこのみもきいてあげましょう。", zh: "大約一公分到一點五公分比較好入口,也要詢問顧客的喜好。" },
+          { speaker: "staffB", jp: "雞肉のむね肉ともも肉、どちらが人気ですか？", kana: "とりにくのむねにくとももにく、どちらがにんきですか？", zh: "雞肉的雞胸肉和雞腿肉,哪個比較受歡迎呢？" },
+          { speaker: "staff", jp: "もも肉の方が人気です。脂が多く、ジューシーな食感が好まれています。", kana: "ももにくのほうがにんきです。あぶらがおおく、じゅーしーなしょっかんがこのまれています。", zh: "雞腿肉比較受歡迎,因為油脂較多、多汁的口感很受喜愛。" },
+          { speaker: "staffB", jp: "むね肉はダイエット中のお客様におすすめですか？", kana: "むねにくはだいえっとちゅうのおきゃくさまにおすすめですか？", zh: "雞胸肉適合推薦給在減肥的顧客嗎？" },
+          { speaker: "staff", jp: "はい、その通りです。脂が少なく低カロリーなので、健康志向のお客様にぴったりです。", kana: "はい、そのとおりです。あぶらがすくなくていかろりーなので、けんこうしこうのおきゃくさまにぴったりです。", zh: "是的,沒有錯,因為油脂少、低熱量,非常適合注重健康的顧客。" },
+          { speaker: "staffB", jp: "わかりました、お客様への説明の仕方が分かってきました。", kana: "わかりました、おきゃくさまへのせつめいのしかたがわかってきました。", zh: "了解了,我漸漸知道怎麼跟顧客說明了。" },
+        ],
+      },
+      {
+        label: "情境三：衛生管理與保存知識",
+        items: [
+          { speaker: "staff", jp: "肉を扱う時は、衛生管理が一番大切です。手袋とまな板の使い分けを確認しましょう。", kana: "にくをあつかうときは、えいせいかんりがいちばんたいせつです。てぶくろとまないたのつかいわけをかくにんしましょう。", zh: "處理肉品時,衛生管理是最重要的,我們來確認手套和砧板的分開使用方式。" },
+          { speaker: "staffB", jp: "牛肉と鶏肉で、まな板を分ける必要がありますか？", kana: "ぎゅうにくととりにくで、まないたをわけるひつようがありますか？", zh: "牛肉和雞肉需要分開使用砧板嗎？" },
+          { speaker: "staff", jp: "はい、必ず分けてください。鶏肉は細菌のリスクが高いので、専用の道具を使います。", kana: "はい、かならずわけてください。とりにくはさいきんのりすくがたかいので、せんようのどうぐをつかいます。", zh: "對,一定要分開,因為雞肉的細菌風險較高,要使用專用的器具。" },
+          { speaker: "staffB", jp: "賞味期限と消費期限の違いは何ですか？", kana: "しょうみきげんとしょうひきげんのちがいはなんですか？", zh: "賞味期限和消費期限有什麼差別呢？" },
+          { speaker: "staff", jp: "賞味期限は風味が保証される期間で、消費期限は安全に食べられる期限です。お客様にはこの違いを説明します。", kana: "しょうみきげんはふうみがほしょうされるきかんで、しょうひきげんはあんぜんにたべられるきげんです。おきゃくさまにはこのちがいをせつめいします。", zh: "賞味期限是保證風味的期間,消費期限是可以安全食用的期限,要跟顧客說明這個差別。" },
+          { speaker: "staffB", jp: "切ったお肉はどのくらいで冷蔵庫に入れますか？", kana: "きったおにくはどのくらいでれいぞうこにいれますか？", zh: "切好的肉大概多久要放進冷藏庫呢？" },
+          { speaker: "staff", jp: "切ったらすぐに冷蔵庫に入れます。室温に長く置くと品質が落ちてしまいます。", kana: "きったらすぐにれいぞうこにいれます。しつおんにながくおくとひんしつがおちてしまいます。", zh: "切完之後要馬上放進冷藏庫,長時間放在室溫下會讓品質下降。" },
+          { speaker: "staffB", jp: "解凍する時に気をつけることはありますか？", kana: "かいとうするときにきをつけることはありますか？", zh: "解凍的時候有什麼要注意的嗎？" },
+          { speaker: "staff", jp: "冷蔵庫でゆっくり解凍するのが基本です。常温での解凍は避けましょう。", kana: "れいぞうこでゆっくりかいとうするのがきほんです。じょうおんでのかいとうはさけましょう。", zh: "基本上是放在冷藏庫慢慢解凍,要避免在常溫下解凍。" },
+          { speaker: "staffB", jp: "わかりました、しっかり守ります。", kana: "わかりました、しっかりまもります。", zh: "了解了,我會好好遵守。" },
+        ],
+      },
+      {
+        label: "情境四：應對客訴與服務細節",
+        items: [
+          { speaker: "staff", jp: "お客様から「お肉が硬かった」と言われた場合の対応を練習しましょう。", kana: "おきゃくさまから「おにくがかたかった」といわれたばあいのたいおうをれんしゅうしましょう。", zh: "我們來練習當顧客說「肉很硬」時的應對方式。" },
+          { speaker: "staffB", jp: "まずお詫びの言葉から始めればいいですか？", kana: "まずおわびのことばからはじめればいいですか？", zh: "首先要從道歉的話開始嗎？" },
+          { speaker: "staff", jp: "そうです。「ご不便をおかけし、申し訳ございませんでした」と伝えてから、原因を確認します。", kana: "そうです。「ごふべんをおかけし、もうしわけございませんでした」とつたえてから、げんいんをかくにんします。", zh: "對,要先說「造成您的不便,真的很抱歉」,然後再確認原因。" },
+          { speaker: "staffB", jp: "原因が筋切り不足だった場合は、どう説明しますか？", kana: "げんいんがすじぎりぶそくだったばあいは、どうせつめいしますか？", zh: "如果原因是筋處理不足,要怎麼說明呢？" },
+          { speaker: "staff", jp: "「筋切りが不十分だったようで、大変失礼いたしました」と説明し、次回はしっかり対応すると伝えます。", kana: "「すじぎりがふじゅうぶんだったようで、たいへんしつれいいたしました」とせつめいし、じかいはしっかりたいおうするとつたえます。", zh: "說明「筋處理似乎做得不夠完善,非常抱歉」,並告知下次會好好處理。" },
+          { speaker: "staffB", jp: "交換やお詫びの品を渡すこともありますか？", kana: "こうかんやおわびのしなをわたすこともありますか？", zh: "也會有換貨或致歉商品的情況嗎？" },
+          { speaker: "staff", jp: "状況によりますが、店長に確認の上、交換やサービス品をご用意することもあります。", kana: "じょうきょうによりますが、てんちょうにかくにんのうえ、こうかんやさーびすひんをごよういすることもあります。", zh: "視情況而定,確認過店長之後,有時也會準備換貨或贈品。" },
+          { speaker: "staffB", jp: "お客様が量を間違えたと感じている場合はどうしますか？", kana: "おきゃくさまがりょうをまちがえたとかんじているばあいはどうしますか？", zh: "如果顧客覺得份量算錯了,該怎麼處理呢？" },
+          { speaker: "staff", jp: "まず計量の記録を確認し、丁寧に説明します。誤りがあれば、すぐに訂正してお詫びします。", kana: "まずけいりょうのきろくをかくにんし、ていねいにせつめいします。あやまりがあれば、すぐにていせいしてお詫びします。", zh: "先確認計量的記錄,並有禮地說明,如果真有錯誤,要立刻更正並致歉。" },
+          { speaker: "staffB", jp: "わかりました、冷静に対応することが大切ですね。", kana: "わかりました、れいせいにたいおうすることがたいせつですね。", zh: "了解了,保持冷靜應對很重要呢。" },
+          { speaker: "staff", jp: "その通りです。お客様の気持ちに寄り添いながら、丁寧に対応してください。", kana: "そのとおりです。おきゃくさまのきもちによりそいながら、ていねいにたいおうしてください。", zh: "沒錯,要顧及顧客的感受,並有禮地應對。" },
+        ],
+      },
+    ],
+  },
+  delivery: {
+    label: "進貨・後場作業",
+    scenarios: [
+      {
+        label: "情境一：驗收與分切前準備",
+        items: [
+          { speaker: "staff", jp: "今朝入荷した豚肉と牛肉を確認します。数量と状態をチェックしてください。", kana: "けさいにゅうしたぶたにくとぎゅうにくをかくにんします。すうりょうとじょうたいをちぇっくしてください。", zh: "我們來確認今天早上進貨的豬肉和牛肉,請檢查數量和狀態。" },
+          { speaker: "staffB", jp: "牛肉のブロックが五つ届いています。状態は良さそうです。", kana: "ぎゅうにくのぶろっくがいつついております。じょうたいはよさそうです。", zh: "牛肉的整塊有五個送到,狀態看起來不錯。" },
+          { speaker: "staff", jp: "良かったです。温度管理の記録も忘れずに記入してください。", kana: "よかったです。おんどかんりのきろくもわすれずにきにゅうしてください。", zh: "那很好,溫度管理的記錄也別忘了填寫。" },
+          { speaker: "staffB", jp: "わかりました。記入が終わったら、すぐに冷蔵庫に入れますか？", kana: "わかりました。きにゅうがおわったら、すぐにれいぞうこにいれますか？", zh: "了解了,填寫完之後要馬上放進冷藏庫嗎？" },
+          { speaker: "staff", jp: "はい、室温に置く時間は最小限にしましょう。", kana: "はい、しつおんにおくじかんはさいしょうげんにしましょう。", zh: "對,放在室溫的時間要盡量縮短。" },
+          { speaker: "staffB", jp: "豚肉のバラ肉は加工日のラベルを貼ればいいですか？", kana: "ぶたにくのばらにくはかこうびのらべるをはればいいですか？", zh: "豬五花要貼上加工日的標籤嗎？" },
+          { speaker: "staff", jp: "そうです。加工日と賞味期限の両方を記載してください。", kana: "そうです。かこうびとしょうみきげんのりょうほうをきさいしてください。", zh: "對的,加工日和賞味期限兩個都要標示。" },
+          { speaker: "staffB", jp: "承知しました。分切の作業はいつ始めますか？", kana: "しょうちしました。ぶんせつのさぎょうはいつはじめますか？", zh: "了解了,分切作業什麼時候開始呢？" },
+          { speaker: "staff", jp: "ラベル付けが終わったら、すぐに分切に取り掛かりましょう。", kana: "らべるづけがおわったら、すぐにぶんせつにとりかかりましょう。", zh: "貼好標籤之後,馬上開始進行分切作業。" },
+        ],
+      },
+      {
+        label: "情境二：陳列補貨與賞味期限管理",
+        items: [
+          { speaker: "staff", jp: "陳列ケースの在庫を確認して、賞味期限が近いものを前に出してください。", kana: "ちんれつけーすのざいこをかくにんして、しょうみきげんがちかいものをまえにだしてください。", zh: "請確認陳列櫃的庫存,把賞味期限快到的放到前面。" },
+          { speaker: "staffB", jp: "鶏肉のもも肉が、明日が期限のものがあります。", kana: "とりにくのももにくが、あしたがきげんのものがあります。", zh: "雞腿肉有一些是明天到期的。" },
+          { speaker: "staff", jp: "それは値引きシールを貼って、目立つ場所に並べましょう。", kana: "それはねびきしーるをはって、めだつばしょにならべましょう。", zh: "那個要貼上折扣貼紙,放在顯眼的位置。" },
+          { speaker: "staffB", jp: "わかりました。新しく入荷した分はどこに置きますか？", kana: "わかりました。あたらしくにゅうかしたぶんはどこにおきますか？", zh: "了解了,新進貨的要放在哪裡呢？" },
+          { speaker: "staff", jp: "棚の奥に置いて、先入れ先出しを徹底してください。", kana: "たなのおくにおいて、さきいれさきだしをてっていしてください。", zh: "放在貨架後面,要徹底執行先進先出。" },
+          { speaker: "staffB", jp: "牛肉のサーロインが少なくなってきました。補充しますか？", kana: "ぎゅうにくのさーろいんがすくなくなってきました。ほじゅうしますか？", zh: "牛肉沙朗變少了,要補貨嗎？" },
+          { speaker: "staff", jp: "はい、冷蔵庫から出して、すぐに切り分けて補充してください。", kana: "はい、れいぞうこからだして、すぐにきりわけてほじゅうしてください。", zh: "好的,從冷藏庫拿出來,馬上分切並補貨。" },
+          { speaker: "staffB", jp: "今日中に全部補充できそうです。", kana: "きょうじゅうにぜんぶほじゅうできそうです。", zh: "看起來今天之內可以全部補完。" },
+          { speaker: "staff", jp: "助かります。閉店前にもう一度在庫を確認しましょう。", kana: "たすかります。へいてんまえにもういちどざいこをかくにんしましょう。", zh: "幫了大忙,關店前再確認一次庫存吧。" },
+        ],
+      },
+      {
+        label: "情境三：團隊交班與器具清潔",
+        items: [
+          { speaker: "staff", jp: "交代の前に、本日の在庫状況を共有しましょう。", kana: "こうたいのまえに、ほんじつのざいこじょうきょうをきょうゆうしましょう。", zh: "交班之前,先分享一下今天的庫存狀況。" },
+          { speaker: "staffB", jp: "牛すじとハラミが残り少なくなっています。", kana: "ぎゅうすじとはらみがのこりすくなくなっています。", zh: "牛筋和橫膈肌肉剩下不多了。" },
+          { speaker: "staff", jp: "了解です。明日の発注リストに追加しておきます。", kana: "りょうかいです。あしたのはっちゅうりすとについかしておきます。", zh: "了解,我會加進明天的訂貨清單裡。" },
+          { speaker: "staffB", jp: "包丁とまな板の洗浄は、もう済ませました。", kana: "ほうちょうとまないたのせんじょうは、もうすませました。", zh: "菜刀和砧板的清洗已經做完了。" },
+          { speaker: "staff", jp: "ありがとうございます。消毒も忘れずにお願いします。", kana: "ありがとうございます。しょうどくもわすれずにおねがいします。", zh: "謝謝你,消毒也請別忘了。" },
+          { speaker: "staffB", jp: "はい、これから消毒液で拭きます。", kana: "はい、これからしょうどくえきでふきます。", zh: "好的,我現在就用消毒液擦拭。" },
+          { speaker: "staff", jp: "お疲れさまでした。今日は本当に助かりました。", kana: "おつかれさまでした。きょうはほんとうにたすかりました。", zh: "辛苦了,今天真的幫了大忙。" },
+          { speaker: "staffB", jp: "ありがとうございます。それでは失礼します。", kana: "ありがとうございます。それではしつれいします。", zh: "謝謝你,那我先告辭了。" },
+        ],
+      },
+    ],
+  },
+};
+const PHRASE_KEYS = Object.keys(PHRASE_DATA);
+let currentPhraseScene = "counter";
+let currentScenarioIndex = 0;
+
+</script>
+<script>
+const CAT_KEYS = Object.keys(VOCAB_DATA);
+let currentCat = "beef";
+let currentMode = "ref";        // "ref" | "study"
+let refSubMode = "lookup";      // "lookup" | "confuse"
+let studySubMode = "memorize";  // "memorize" | "quiz"
+
+let studyOrder = [];
+let studyIndex = 0;
+let isFlipped = false;
+
+let quizQueue = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let quizDirection = "jp2zh"; // "jp2zh" | "zh2jp"
+let autoAdvanceTimer = null;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function refreshCatTabbarVisibility() {
+  const needsCat = (currentMode === 'ref' && refSubMode === 'lookup') ||
+                    (currentMode === 'study' && (studySubMode === 'memorize' || studySubMode === 'quiz'));
+  document.getElementById('catTabbar').style.display = needsCat ? 'flex' : 'none';
+}
+
+function refreshDirectionToggleVisibility() {
+  const showToggle = currentMode === 'study' && studySubMode === 'quiz';
+  document.getElementById('directionToggleBtn').style.display = showToggle ? 'inline-block' : 'none';
+}
+
+/* ---------- top-level mode tabs ---------- */
+document.querySelectorAll('#modeTabbar .tab-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    stopPlayAll();
+    document.querySelectorAll('#modeTabbar .tab-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentMode = tab.dataset.mode;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + currentMode).classList.add('active');
+
+    refreshCatTabbarVisibility();
+    refreshDirectionToggleVisibility();
+    enterCurrentMode();
+  });
+});
+
+/* ---------- inner sub-mode tabs ---------- */
+document.getElementById('refInnerTabbar').addEventListener('click', (e) => {
+  const item = e.target.closest('.inner-tab-item');
+  if (!item) return;
+  document.querySelectorAll('#refInnerTabbar .inner-tab-item').forEach(t => t.classList.remove('active'));
+  item.classList.add('active');
+  refSubMode = item.dataset.submode;
+  document.querySelectorAll('#view-ref .inner-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('ref-' + refSubMode).classList.add('active');
+  refreshCatTabbarVisibility();
+  enterCurrentMode();
+});
+
+document.getElementById('studyInnerTabbar').addEventListener('click', (e) => {
+  const item = e.target.closest('.inner-tab-item');
+  if (!item) return;
+  document.querySelectorAll('#studyInnerTabbar .inner-tab-item').forEach(t => t.classList.remove('active'));
+  item.classList.add('active');
+  studySubMode = item.dataset.submode;
+  document.querySelectorAll('#view-study .inner-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('study-' + studySubMode).classList.add('active');
+  refreshCatTabbarVisibility();
+  refreshDirectionToggleVisibility();
+  enterCurrentMode();
+});
+
+/* ---------- dispatch ---------- */
+function enterCurrentMode() {
+  if (currentMode === 'ref') {
+    if (refSubMode === 'lookup') renderRef();
+    if (refSubMode === 'confuse') renderConfuse();
+  } else if (currentMode === 'study') {
+    if (studySubMode === 'memorize') initStudy();
+    if (studySubMode === 'quiz') initQuiz();
+  } else if (currentMode === 'phrase') {
+    renderPhrase();
+  }
+}
+
+/* ---------- category sub-tabs ---------- */
+function buildCatTabs() {
+  const bar = document.getElementById('catTabbar');
+  bar.innerHTML = '';
+  CAT_KEYS.forEach(key => {
+    const cat = VOCAB_DATA[key];
+    const el = document.createElement('div');
+    el.className = 'subtab-item' + (key === currentCat ? ' active' : '');
+    el.textContent = cat.label;
+    el.addEventListener('click', () => {
+      currentCat = key;
+      buildCatTabs();
+      enterCurrentMode();
+    });
+    bar.appendChild(el);
+  });
+}
+
+/* ================= REF (速査表) ================= */
+let currentShapeFilter = "all";
+let refZhPinned = false;
+
+const SHAPE_LABELS = {
+  all: "全部",
+};
+
+function getRefItems() {
+  const cat = VOCAB_DATA[currentCat];
+  if (currentShapeFilter === "all") return cat.items;
+  return cat.items.filter(it => it.shape === currentShapeFilter);
+}
+
+function renderShapeFilter() {
+  const cat = VOCAB_DATA[currentCat];
+  const row = document.getElementById('shapeFilterRow');
+  const shapesPresent = [...new Set(cat.items.filter(it => it.shape).map(it => it.shape))];
+
+  if (shapesPresent.length === 0) {
+    row.style.display = 'none';
+    row.innerHTML = '';
+    return;
+  }
+
+  row.style.display = 'flex';
+  row.innerHTML = '';
+  const options = ["all", ...shapesPresent];
+  options.forEach(key => {
+    const pill = document.createElement('div');
+    pill.className = 'shape-filter-item' + (key === currentShapeFilter ? ' active' : '');
+    pill.textContent = SHAPE_LABELS[key] || key;
+    pill.addEventListener('click', () => {
+      currentShapeFilter = key;
+      renderShapeFilter();
+      renderRef(true);
+    });
+    row.appendChild(pill);
+  });
+}
+
+function renderRefCell(cell, item) {
+  if (refZhPinned) {
+    cell.classList.add('revealed');
+    cell.innerHTML = `<span class="ref-cell-jp">${item.jp}</span><span class="ref-cell-kana">${item.kana}</span><span class="ref-cell-zh">${item.zh}</span>`;
+  } else {
+    cell.classList.remove('revealed');
+    cell.innerHTML = `<span class="ref-cell-jp">${item.jp}</span>`;
+  }
+}
+
+function renderRef(keepFilter) {
+  if (!keepFilter) currentShapeFilter = "all";
+  renderShapeFilter();
+
+  const items = getRefItems();
+  const grid = document.getElementById('refGrid');
+  grid.classList.toggle('zh-pinned', refZhPinned);
+  grid.innerHTML = '';
+  items.forEach((item) => {
+    const cell = document.createElement('div');
+    cell.className = 'ref-cell';
+    renderRefCell(cell, item);
+    cell.addEventListener('click', () => {
+      if (refZhPinned) return; // 中文常駐模式下不需要點擊翻牌
+      const revealed = cell.classList.toggle('revealed');
+      cell.innerHTML = revealed
+        ? `<span class="ref-cell-kana">${item.kana}</span><span class="ref-cell-zh">${item.zh}</span>`
+        : `<span class="ref-cell-jp">${item.jp}</span>`;
+    });
+    grid.appendChild(cell);
+  });
+}
+
+document.getElementById('toggleRefZh').addEventListener('click', (e) => {
+  const isOn = e.target.dataset.on === 'true';
+  refZhPinned = !isOn;
+  e.target.dataset.on = String(refZhPinned);
+  document.getElementById('refLookupHint').textContent = refZhPinned
+    ? '已顯示全部假名與中文意思'
+    : '點擊單字查看假名與中文意思';
+  renderRef(true);
+});
+
+/* ================= STUDY ================= */
+function initStudy() {
+  const cat = VOCAB_DATA[currentCat];
+  studyOrder = cat.items.map((_, i) => i);
+  studyIndex = 0;
+  isFlipped = false;
+  renderStudyCard();
+}
+
+function renderStudyCard() {
+  const cat = VOCAB_DATA[currentCat];
+  const item = cat.items[studyOrder[studyIndex]];
+  isFlipped = false;
+
+  document.getElementById('cardJp').textContent = item.jp;
+  document.getElementById('cardKana').textContent = item.kana;
+  document.getElementById('cardZh').textContent = '';
+  document.getElementById('cardHint').textContent = '點擊卡片看中文';
+
+  const pos = studyIndex + 1;
+  const total = studyOrder.length;
+  document.getElementById('cardIndexTag').textContent = `${pos} / ${total}`;
+  document.getElementById('navCounter').textContent = `${pos} / ${total}`;
+}
+
+document.getElementById('flashcard').addEventListener('click', () => {
+  const cat = VOCAB_DATA[currentCat];
+  const item = cat.items[studyOrder[studyIndex]];
+  isFlipped = !isFlipped;
+  document.getElementById('cardZh').textContent = isFlipped ? item.zh : '';
+  document.getElementById('cardHint').textContent = isFlipped ? '點擊卡片隱藏中文' : '點擊卡片看中文';
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  studyIndex = (studyIndex + 1) % studyOrder.length;
+  renderStudyCard();
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+  studyIndex = (studyIndex - 1 + studyOrder.length) % studyOrder.length;
+  renderStudyCard();
+});
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  studyOrder = shuffle(studyOrder);
+  studyIndex = 0;
+  renderStudyCard();
+});
+
+/* ================= QUIZ ================= */
+function initQuiz() {
+  const cat = VOCAB_DATA[currentCat];
+  quizQueue = shuffle(cat.items.map((_, i) => i));
+  quizIndex = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+  document.getElementById('quizContent').style.display = 'block';
+  document.getElementById('quizResultView').style.display = 'none';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const cat = VOCAB_DATA[currentCat];
+  const itemIdx = quizQueue[quizIndex];
+  const item = cat.items[itemIdx];
+  quizAnswered = false;
+  if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+
+  const label = document.getElementById('quizQuestionLabel');
+  const kanaEl = document.getElementById('quizKana');
+
+  if (quizDirection === 'jp2zh') {
+    label.textContent = '這個單字的中文意思是？';
+    document.getElementById('quizJp').textContent = item.jp;
+    kanaEl.textContent = item.kana;
+    kanaEl.style.display = '';
+  } else {
+    label.textContent = '這個中文對應的日文是？';
+    document.getElementById('quizJp').textContent = item.zh;
+    kanaEl.textContent = '';
+    kanaEl.style.display = 'none';
+  }
+
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('nextQuestionBtn').disabled = true;
+  document.getElementById('quizProgress').textContent = `第 ${quizIndex + 1} 題 / 共 ${quizQueue.length} 題`;
+
+  const correctAnswer = quizDirection === 'jp2zh' ? item.zh : item.jp;
+  const pool = cat.items
+    .filter((_, i) => i !== itemIdx)
+    .map(x => quizDirection === 'jp2zh' ? x.zh : x.jp);
+  const wrongs = shuffle(pool).slice(0, 3);
+  const options = shuffle([correctAnswer, ...wrongs]);
+
+  const optWrap = document.getElementById('quizOptions');
+  optWrap.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => handleAnswer(btn, opt, correctAnswer));
+    optWrap.appendChild(btn);
+  });
+
+  document.getElementById('scoreText').textContent = `${quizScore} / ${quizIndex}`;
+}
+
+function handleAnswer(btn, chosen, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    quizScore++;
+    document.getElementById('quizFeedback').textContent = '答對了';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-option').forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
+    document.getElementById('quizFeedback').textContent = `正確答案：${correct}`;
+  }
+  document.getElementById('scoreText').textContent = `${quizScore} / ${quizIndex + 1}`;
+  document.getElementById('nextQuestionBtn').disabled = false;
+
+  if (chosen === correct) {
+    autoAdvanceTimer = setTimeout(() => {
+      autoAdvanceTimer = null;
+      goToNextQuestion();
+    }, 600);
+  }
+}
+
+function goToNextQuestion() {
+  quizIndex++;
+  if (quizIndex >= quizQueue.length) {
+    showQuizResult();
+  } else {
+    renderQuizQuestion();
+  }
+}
+
+document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+  if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+  goToNextQuestion();
+});
+
+document.getElementById('directionToggleBtn').addEventListener('click', (e) => {
+  quizDirection = quizDirection === 'jp2zh' ? 'zh2jp' : 'jp2zh';
+  e.target.textContent = quizDirection === 'jp2zh' ? '切換為「中→日」' : '切換為「日→中」';
+  initQuiz();
+});
+
+function showQuizResult() {
+  document.getElementById('quizContent').style.display = 'none';
+  document.getElementById('quizResultView').style.display = 'block';
+  const total = quizQueue.length;
+  document.getElementById('finalScore').textContent = `${quizScore} / ${total}`;
+  let msg = '繼續加油，多複習幾次吧';
+  const ratio = quizScore / total;
+  if (ratio === 1) msg = '完美，這個分類已經記熟了';
+  else if (ratio >= 0.8) msg = '很不錯，幾乎全對';
+  else if (ratio >= 0.5) msg = '還可以，再複習一輪會更熟練';
+  document.getElementById('resultMsg').textContent = msg;
+}
+
+document.getElementById('restartBtn').addEventListener('click', initQuiz);
+
+/* ================= CONFUSE ================= */
+function renderConfuse() {
+  const wrap = document.getElementById('confuseList');
+  wrap.innerHTML = '';
+  CONFUSE_GROUPS.forEach(group => {
+    const row = document.createElement('div');
+    row.className = 'confuse-row';
+    const itemsHtml = group.items.map(it =>
+      `<div class="confuse-pill"><span class="k">${it.jp}（${it.kana}）</span><span class="z">${it.zh}</span></div>`
+    ).join('');
+    row.innerHTML = `<div class="confuse-title">${group.title}</div><div class="confuse-items">${itemsHtml}</div>`;
+    wrap.appendChild(row);
+  });
+}
+
+/* ================= PHRASE (常用句) ================= */
+const SPEAKER_LABELS = { staff: "店員", customer: "客人", staffB: "店員B" };
+
+function buildSceneTabs() {
+  const bar = document.getElementById('sceneTabbar');
+  bar.innerHTML = '';
+  PHRASE_KEYS.forEach(key => {
+    const scene = PHRASE_DATA[key];
+    const el = document.createElement('div');
+    el.className = 'scene-tab-item' + (key === currentPhraseScene ? ' active' : '');
+    el.textContent = scene.label;
+    el.addEventListener('click', () => {
+      stopPlayAll();
+      currentPhraseScene = key;
+      currentScenarioIndex = 0;
+      buildSceneTabs();
+      buildScenarioTabs();
+      renderPhraseList();
+    });
+    bar.appendChild(el);
+  });
+}
+
+function buildScenarioTabs() {
+  const scene = PHRASE_DATA[currentPhraseScene];
+  const bar = document.getElementById('scenarioTabbar');
+  bar.innerHTML = '';
+  scene.scenarios.forEach((scenario, i) => {
+    const el = document.createElement('div');
+    el.className = 'scenario-tab-item' + (i === currentScenarioIndex ? ' active' : '');
+    el.textContent = scenario.label;
+    el.addEventListener('click', () => {
+      stopPlayAll();
+      currentScenarioIndex = i;
+      buildScenarioTabs();
+      renderPhraseList();
+    });
+    bar.appendChild(el);
+  });
+}
+
+const SPEAKER_ICON_SVG = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+    <path d="M18 6a8.5 8.5 0 0 1 0 12"></path>
+  </svg>
+`;
+
+function renderPhraseList() {
+  const scene = PHRASE_DATA[currentPhraseScene];
+  const scenario = scene.scenarios[currentScenarioIndex];
+  const list = document.getElementById('phraseList');
+  list.innerHTML = '';
+  scenario.items.forEach((item, idx) => {
+    const row = document.createElement('div');
+    const layoutRole = item.speaker === 'staffB' ? 'customer' : item.speaker;
+    row.className = 'phrase-row ' + layoutRole;
+    row.dataset.index = idx;
+    row.innerHTML = `
+      <span class="speaker-tag">${SPEAKER_LABELS[item.speaker]}</span>
+      <div class="phrase-bubble">
+        <div class="phrase-jp-row">
+          <span class="phrase-jp">${buildFuriganaHTML(item.jp)}</span>
+          <button class="speak-btn" type="button" aria-label="播放發音" title="播放發音">${SPEAKER_ICON_SVG}</button>
+        </div>
+        <div class="phrase-zh">${item.zh}</div>
+      </div>
+    `;
+
+    // 長按（觸控裝置）顯示該漢字詞的假名提示
+    row.querySelectorAll('.furi').forEach(furiEl => {
+      let pressTimer = null;
+      furiEl.addEventListener('touchstart', () => {
+        pressTimer = setTimeout(() => furiEl.classList.add('show-tooltip'), 350);
+      });
+      furiEl.addEventListener('touchend', () => {
+        clearTimeout(pressTimer);
+        setTimeout(() => furiEl.classList.remove('show-tooltip'), 1200);
+      });
+    });
+
+    // 喇叭按鈕：播放日文發音（單句，會中斷全部播放模式）
+    const speakBtn = row.querySelector('.speak-btn');
+    speakBtn.addEventListener('click', () => {
+      stopPlayAll();
+      speakJapanese(item.jp, item.speaker, speakBtn, row);
+    });
+
+    list.appendChild(row);
+  });
+}
+
+/* ---------- 語音設定：店員 / 客人音色區分 ---------- */
+let cachedJaVoices = null;
+
+// 依說話者套用不同音色／音調／語速，盡量挑選不同的日文語音；
+// 優先選擇聽起來較自然的語音（避開明顯機械感的系統預設語音）
+function rankVoiceNaturalness(voice) {
+  const name = voice.name.toLowerCase();
+  // 常見較自然的合成引擎／雲端語音關鍵字，分數越高越優先
+  if (/neural|wavenet|natural|premium|enhanced/.test(name)) return 3;
+  if (/google/.test(name)) return 2;
+  if (/microsoft|siri|apple/.test(name)) return 1;
+  return 0;
+}
+
+function getJaVoices() {
+  if (cachedJaVoices && cachedJaVoices.length) return cachedJaVoices;
+  if (!('speechSynthesis' in window)) return [];
+  const all = window.speechSynthesis.getVoices();
+  cachedJaVoices = all
+    .filter(v => v.lang && v.lang.toLowerCase().startsWith('ja'))
+    .sort((a, b) => rankVoiceNaturalness(b) - rankVoiceNaturalness(a));
+  return cachedJaVoices;
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => { cachedJaVoices = null; };
+}
+
+function configureUtteranceForSpeaker(utter, speaker) {
+  const voices = getJaVoices();
+  if (voices.length >= 3) {
+    const femaleHint = voices.find(v => /female|女|f\b/i.test(v.name));
+    const maleHint = voices.find(v => /male|男|m\b/i.test(v.name) && v !== femaleHint);
+    const remaining = voices.filter(v => v !== femaleHint && v !== maleHint);
+    if (speaker === 'staff') {
+      utter.voice = femaleHint || voices[0];
+    } else if (speaker === 'staffB') {
+      utter.voice = remaining[0] || voices[2] || voices[0];
+    } else {
+      utter.voice = maleHint || voices[1] || voices[0];
+    }
+  } else if (voices.length === 2) {
+    utter.voice = (speaker === 'staff') ? voices[0] : voices[1];
+  } else if (voices.length === 1) {
+    utter.voice = voices[0];
+  }
+
+  // pitch／rate 調整幅度縮小，貼近語音引擎原始音色，降低機械感
+  if (speaker === 'staff') {
+    utter.pitch = 1.04;
+    utter.rate = 0.96;
+  } else if (speaker === 'staffB') {
+    utter.pitch = 0.97;
+    utter.rate = 0.98;
+  } else {
+    utter.pitch = 0.92;
+    utter.rate = 0.98;
+  }
+}
+
+function speakJapanese(text, speaker, btn, row) {
+  if (!('speechSynthesis' in window)) {
+    alert('您的瀏覽器不支援語音播放功能');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ja-JP';
+  configureUtteranceForSpeaker(utter, speaker);
+
+  document.querySelectorAll('.speak-btn.playing').forEach(b => b.classList.remove('playing'));
+  if (btn) btn.classList.add('playing');
+  if (row) row.classList.add('speaking');
+
+  utter.onend = () => {
+    if (btn) btn.classList.remove('playing');
+    if (row) row.classList.remove('speaking');
+  };
+  utter.onerror = () => {
+    if (btn) btn.classList.remove('playing');
+    if (row) row.classList.remove('speaking');
+  };
+
+  window.speechSynthesis.speak(utter);
+}
+
+/* ---------- 全部播放（依序播放整個情境） ---------- */
+let playAllActive = false;
+let playAllQueueIndex = 0;
+let playAllAbort = false;
+
+function setPlayAllButtonState(isPlaying) {
+  const btn = document.getElementById('playAllBtn');
+  const icon = document.getElementById('playAllIcon');
+  const label = document.getElementById('playAllLabel');
+  btn.classList.toggle('active', isPlaying);
+  label.textContent = isPlaying ? '停止播放' : '全部播放本情境';
+  icon.innerHTML = isPlaying
+    ? '<rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect>'
+    : '<polygon points="6 4 20 12 6 20 6 4"></polygon>';
+}
+
+function stopPlayAll() {
+  if (!playAllActive) return;
+  playAllAbort = true;
+  playAllActive = false;
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  document.querySelectorAll('.phrase-row.speaking').forEach(r => r.classList.remove('speaking'));
+  document.querySelectorAll('.speak-btn.playing').forEach(b => b.classList.remove('playing'));
+  setPlayAllButtonState(false);
+}
+
+function playAllScenario() {
+  const scene = PHRASE_DATA[currentPhraseScene];
+  const scenario = scene.scenarios[currentScenarioIndex];
+  const items = scenario.items;
+  const rows = Array.from(document.querySelectorAll('#phraseList .phrase-row'));
+
+  playAllActive = true;
+  playAllAbort = false;
+  playAllQueueIndex = 0;
+  setPlayAllButtonState(true);
+
+  function playNext() {
+    if (playAllAbort) return;
+    if (playAllQueueIndex >= items.length) {
+      playAllActive = false;
+      setPlayAllButtonState(false);
+      return;
+    }
+    const item = items[playAllQueueIndex];
+    const row = rows[playAllQueueIndex];
+    const speakBtn = row ? row.querySelector('.speak-btn') : null;
+
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    if (!('speechSynthesis' in window)) {
+      alert('您的瀏覽器不支援語音播放功能');
+      stopPlayAll();
+      return;
+    }
+
+    const utter = new SpeechSynthesisUtterance(item.jp);
+    utter.lang = 'ja-JP';
+    configureUtteranceForSpeaker(utter, item.speaker);
+
+    document.querySelectorAll('.speak-btn.playing').forEach(b => b.classList.remove('playing'));
+    document.querySelectorAll('.phrase-row.speaking').forEach(r => r.classList.remove('speaking'));
+    if (speakBtn) speakBtn.classList.add('playing');
+    if (row) row.classList.add('speaking');
+
+    utter.onend = () => {
+      if (speakBtn) speakBtn.classList.remove('playing');
+      if (row) row.classList.remove('speaking');
+      playAllQueueIndex++;
+      if (!playAllAbort) {
+        setTimeout(playNext, 350);
+      }
+    };
+    utter.onerror = () => {
+      if (speakBtn) speakBtn.classList.remove('playing');
+      if (row) row.classList.remove('speaking');
+      playAllQueueIndex++;
+      if (!playAllAbort) {
+        setTimeout(playNext, 350);
+      }
+    };
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  playNext();
+}
+
+document.getElementById('playAllBtn').addEventListener('click', () => {
+  if (playAllActive) {
+    stopPlayAll();
+  } else {
+    playAllScenario();
+  }
+});
+
+function renderPhrase() {
+  buildSceneTabs();
+  buildScenarioTabs();
+  renderPhraseList();
+}
+
+document.getElementById('toggleZh').addEventListener('click', (e) => {
+  const isOn = e.target.dataset.on === 'true';
+  e.target.dataset.on = String(!isOn);
+  document.body.classList.toggle('show-zh', !isOn);
+});
+
+/* ---------- theme toggle ---------- */
+const SUN_PATH = `
+  <circle cx="12" cy="12" r="4.5"></circle>
+  <line x1="12" y1="2.5" x2="12" y2="5"></line>
+  <line x1="12" y1="19" x2="12" y2="21.5"></line>
+  <line x1="4.2" y1="4.2" x2="6" y2="6"></line>
+  <line x1="18" y1="18" x2="19.8" y2="19.8"></line>
+  <line x1="2.5" y1="12" x2="5" y2="12"></line>
+  <line x1="19" y1="12" x2="21.5" y2="12"></line>
+  <line x1="4.2" y1="19.8" x2="6" y2="18"></line>
+  <line x1="18" y1="6" x2="19.8" y2="4.2"></line>
+`;
+const MOON_PATH = `<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"></path>`;
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeIcon').innerHTML = theme === 'dark' ? MOON_PATH : SUN_PATH;
+}
+
+const savedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+applyTheme(savedTheme);
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+});
+
+/* ---------- init ---------- */
+buildCatTabs();
+renderRef();
+refreshDirectionToggleVisibility();
+
+</script>
+</body>
+</html>
