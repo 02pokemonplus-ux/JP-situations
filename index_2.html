@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日文情境入口</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f3; --surface: #fff; --border: #e0e0e0;
+    --text: #1a1a1a; --text2: #666; --text3: #999;
+    --gold: #b8860b; --section: #888;
+  }
+  body.dark {
+    --bg: #111110; --surface: #1c1c1a; --border: #2e2e2b;
+    --text: #f0ede8; --text2: #a8a69e; --text3: #777;
+    --gold: #d4a94e; --section: #aaa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; padding: 40px 20px 60px;
+    transition: background .2s, color .2s;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 36px; position: relative; }
+  header h1 { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; font-size: clamp(28px, 6vw, 42px); letter-spacing: 0.02em; }
+  header p { margin-top: 10px; color: var(--text2); font-size: 13px; }
+
+  .section { margin-bottom: 32px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    color: var(--section);
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .card {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px; transition: transform .15s, border-color .15s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .card-title { font-family: 'Noto Sans TC', sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 6px; }
+  .card-sub { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text3); }
+  .toolbar { position: absolute; top: 0; right: 0; display: flex; gap: 8px; align-items: center; }
+  .tool-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .15s, color .15s;
+  }
+  .tool-btn:hover { border-color: var(--gold); color: var(--text); }
+  .tool-btn svg { display: block; }
+  .grid.list-mode { grid-template-columns: 1fr; gap: 6px; }
+  .grid.list-mode .card { display: flex; align-items: center; gap: 14px; padding: 12px 18px; }
+  .grid.list-mode .card-title { font-size: 15px; margin-bottom: 0; flex-shrink: 0; min-width: 110px; }
+  .grid.list-mode .card-sub { font-size: 12px; color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="toolbar">
+      <button class="tool-btn" id="layout-btn" onclick="toggleLayout()" title="切換顯示模式">
+        <svg id="icon-list" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg id="icon-grid" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </button>
+      <button class="tool-btn" id="theme-btn" onclick="toggleTheme()" title="切換深色模式">
+        <svg id="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg id="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <circle cx="12" cy="12" r="4"/>
+          <line x1="12" y1="2" x2="12" y2="5"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+          <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+          <line x1="2" y1="12" x2="5" y2="12"/>
+          <line x1="19" y1="12" x2="22" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+          <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+    <h1>日文情境入口</h1>
+    <p>點選卡片，前往對應的情境學習工具</p>
+  </header>
+
+  <div class="section">
+    <div class="section-label">飲食</div>
+    <div class="grid">
+      <a class="card" href="./izakaya.html">
+        <div class="card-title">居酒屋</div>
+        <div class="card-sub">點餐、乾杯、結帳用語</div>
+      </a>
+      <a class="card" href="./italian.html">
+        <div class="card-title">義大利餐廳</div>
+        <div class="card-sub">正式用餐、點菜、詢問料理</div>
+      </a>
+      <a class="card" href="./ramen.html">
+        <div class="card-title">拉麵店</div>
+        <div class="card-sub">湯頭、配料、客製化點法</div>
+      </a>
+      <a class="card" href="./gyudon.html">
+        <div class="card-title">牛丼</div>
+        <div class="card-sub">快餐店點餐與常見選項</div>
+      </a>
+      <a class="card" href="./sushi.html">
+        <div class="card-title">高級壽司店</div>
+        <div class="card-sub">師傅前板前用語與禮儀</div>
+      </a>
+      <a class="card" href="./yakiniku.html">
+        <div class="card-title">燒肉店</div>
+        <div class="card-sub">烤肉點餐、部位、套餐用語</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">買い物</div>
+    <div class="grid">
+      <a class="card" href="./butcher.html">
+        <div class="card-title">肉舖</div>
+        <div class="card-sub">詢問部位、份量、熟度</div>
+      </a>
+      <a class="card" href="./pharmacy.html">
+        <div class="card-title">藥局</div>
+        <div class="card-sub">症狀描述、購藥與確認用藥</div>
+      </a>
+      <a class="card" href="./konbini.html">
+        <div class="card-title">日本超商</div>
+        <div class="card-sub">結帳、加熱、服務台常用語</div>
+      </a>
+      <a class="card" href="./bakery.html">
+        <div class="card-title">麵包店</div>
+        <div class="card-sub">點選麵包、包裝、詢問口味</div>
+      </a>
+      <a class="card" href="./starbucks.html">
+        <div class="card-title">星巴克</div>
+        <div class="card-sub">客製化點飲料與尺寸選擇</div>
+      </a>
+      <a class="card" href="./pokemon-card.html">
+        <div class="card-title">寶可夢卡店</div>
+        <div class="card-sub">詢問卡牌、交易、稀有度用語</div>
+      </a>
+      <a class="card" href="./greengrocer.html">
+        <div class="card-title">蔬菜店</div>
+        <div class="card-sub">詢問產地、份量、新鮮度</div>
+      </a>
+      <a class="card" href="./clothing.html">
+        <div class="card-title">服飾／試穿</div>
+        <div class="card-sub">試穿、尺寸、顏色詢問用語</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">旅行</div>
+    <div class="grid">
+      <a class="card" href="./hotel.html">
+        <div class="card-title">商務飯店</div>
+        <div class="card-sub">入住、退房、設施詢問</div>
+      </a>
+      <a class="card" href="./reservation.html">
+        <div class="card-title">電話訂位</div>
+        <div class="card-sub">餐廳電話預約常用句型</div>
+      </a>
+      <a class="card" href="./shrine.html">
+        <div class="card-title">神社</div>
+        <div class="card-sub">參拜流程、御守、御朱印用語</div>
+      </a>
+      <a class="card" href="./museum.html">
+        <div class="card-title">美術館</div>
+        <div class="card-sub">購票、導覽、作品詢問用語</div>
+      </a>
+      <a class="card" href="./onsen.html">
+        <div class="card-title">溫泉／錢湯</div>
+        <div class="card-sub">入浴禮儀、設施、注意事項</div>
+      </a>
+      <a class="card" href="./directions.html">
+        <div class="card-title">問路</div>
+        <div class="card-sub">問路、方向、交通指引用語</div>
+      </a>
+      <a class="card" href="./taxi.html">
+        <div class="card-title">計程車</div>
+        <div class="card-sub">叫車、目的地、車資確認</div>
+      </a>
+      <a class="card" href="./car-rental.html">
+        <div class="card-title">租車</div>
+        <div class="card-sub">租車手續、保險、還車確認</div>
+      </a>
+      <a class="card" href="./post-office.html">
+        <div class="card-title">郵局</div>
+        <div class="card-sub">寄件、郵資、包裹寄送用語</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>持續更新中</footer>
+</div>
+
+<script>
+function toggleTheme() {
+  const dark = document.body.classList.toggle('dark');
+  document.getElementById('icon-moon').style.display = dark ? 'none' : '';
+  document.getElementById('icon-sun').style.display = dark ? '' : 'none';
+  localStorage.setItem('hub-dark', dark ? '1' : '0');
+}
+function toggleLayout() {
+  const grids = document.querySelectorAll('.grid');
+  const isList = !grids[0].classList.contains('list-mode');
+  grids.forEach(g => g.classList.toggle('list-mode', isList));
+  document.getElementById('icon-list').style.display = isList ? '' : 'none';
+  document.getElementById('icon-grid').style.display = isList ? 'none' : '';
+  localStorage.setItem('hub-layout', isList ? 'list' : 'grid');
+}
+if (localStorage.getItem('hub-dark') === '1') {
+  document.body.classList.add('dark');
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('icon-moon').style.display = 'none';
+    document.getElementById('icon-sun').style.display = '';
+  });
+}
+if (localStorage.getItem('hub-layout') === 'list') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.grid').forEach(g => g.classList.add('list-mode'));
+    document.getElementById('icon-list').style.display = '';
+    document.getElementById('icon-grid').style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>
