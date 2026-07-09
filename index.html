@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>日文情境入口</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日文情境">
+<meta name="theme-color" content="#b8860b">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -40,10 +47,22 @@
   }
   .sidebar.collapsed { margin-left: -264px; }
 
+  .sidebar-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
   .sidebar-title {
     font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
-    color: var(--section); margin-bottom: 14px;
+    color: var(--section);
   }
+  .sidebar-close {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--text2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-close:hover { border-color: var(--gold); color: var(--text); }
+  .sidebar-close svg { display: block; }
 
   .side-block {
     background: var(--bg);
@@ -112,6 +131,22 @@
   }
   .stat-num { font-size: 20px; font-weight: 700; color: var(--gold); }
   .stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+  /* recent / least list */
+  .mini-list { display: flex; flex-direction: column; gap: 6px; }
+  .mini-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .mini-item:hover { border-color: var(--gold); }
+  .mini-item-title { font-size: 13px; font-weight: 500; }
+  .mini-item-meta { font-size: 10px; color: var(--text3); }
+  .mini-empty { font-size: 11px; color: var(--text3); }
 
   /* random button */
   .random-btn {
@@ -217,7 +252,15 @@
 
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar collapsed" id="sidebar">
-    <div class="sidebar-title">學習紀錄</div>
+    <div class="sidebar-head">
+      <span class="sidebar-title">學習紀錄</span>
+      <button class="sidebar-close" onclick="toggleSidebar()" title="收合" aria-label="收合側欄">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
 
     <div class="side-block">
       <div class="heat-head">
@@ -246,18 +289,28 @@
     </div>
 
     <div class="side-block">
+      <div class="side-block-label">最近學過</div>
+      <div class="mini-list" id="recentList"><span class="mini-empty">尚無紀錄</span></div>
+    </div>
+
+    <div class="side-block">
       <div class="side-block-label">隨機學習</div>
       <button class="random-btn" id="randomBtn">隨機挑一個情境</button>
     </div>
 
     <div class="side-block">
+      <div class="side-block-label">最少複習</div>
+      <div class="mini-list" id="leastList"></div>
+    </div>
+
+    <div class="side-block">
       <div class="side-block-label">跨裝置同步</div>
-      <div class="sync-status" id="syncStatus">同步碼載入中…</div>
+      <div class="sync-status" id="syncStatus"></div>
       <div class="sync-code-row">
-        <input class="sync-input" id="syncInput" placeholder="輸入同步碼（6字以上）" maxlength="30">
-        <button class="sync-btn" id="syncApply">套用</button>
+        <input class="sync-input" id="syncInput" placeholder="設定同步碼（6字以上）" maxlength="30">
+        <button class="sync-btn" id="syncApply">啟用</button>
       </div>
-      <div class="sync-hint">在另一台裝置輸入相同同步碼，學習紀錄即可同步。請記下你的同步碼。</div>
+      <div class="sync-hint">設定同步碼後，紀錄才會上傳雲端。在另一台裝置輸入相同同步碼即可同步。請記下你的同步碼。</div>
     </div>
   </aside>
 
@@ -445,66 +498,99 @@ try {
   console.warn("Firebase 初始化失敗，改用本機模式", e);
 }
 
-/* ================= 學習紀錄核心 ================= */
+/* ================= 情境清單 ================= */
+const PAGES = [
+  { file: "izakaya.html", title: "居酒屋" },
+  { file: "italian.html", title: "義大利餐廳" },
+  { file: "ramen.html", title: "拉麵店" },
+  { file: "gyudon.html", title: "牛丼" },
+  { file: "sushi.html", title: "高級壽司店" },
+  { file: "yakiniku.html", title: "燒肉店" },
+  { file: "butcher.html", title: "肉舖" },
+  { file: "pharmacy.html", title: "藥局" },
+  { file: "konbini.html", title: "日本超商" },
+  { file: "bakery.html", title: "麵包店" },
+  { file: "starbucks.html", title: "星巴克" },
+  { file: "pokemon-card.html", title: "寶可夢卡店" },
+  { file: "greengrocer.html", title: "蔬菜店" },
+  { file: "clothing.html", title: "服飾／試穿" },
+  { file: "hotel.html", title: "商務飯店" },
+  { file: "reservation.html", title: "電話訂位" },
+  { file: "shrine.html", title: "神社" },
+  { file: "museum.html", title: "美術館" },
+  { file: "onsen.html", title: "溫泉／錢湯" },
+  { file: "directions.html", title: "問路" },
+  { file: "taxi.html", title: "計程車" },
+  { file: "car-rental.html", title: "租車" },
+  { file: "post-office.html", title: "郵局" },
+];
+const titleOf = f => (PAGES.find(p => p.file === f) || {}).title || f;
+
+/* ================= 資料 ================= */
 const LS_DAYS = "jp-hub-days";       // { "2026-07-08": 次數 }
+const LS_VISITS = "jp-hub-visits";   // { "ramen.html": 次數 }
+const LS_RECENT = "jp-hub-recent";   // [ "ramen.html", ... ] 最新在前
 const LS_CODE = "jp-hub-synccode";
 
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
-
-function loadLocalDays() {
-  try { return JSON.parse(localStorage.getItem(LS_DAYS)) || {}; }
-  catch { return {}; }
-}
-function saveLocalDays(d) {
-  localStorage.setItem(LS_DAYS, JSON.stringify(d));
+function loadJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  catch { return fallback; }
 }
 
-function genCode() {
-  const chars = "abcdefghjkmnpqrstuvwxyz23456789";
-  let s = "";
-  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
-}
-
-let syncCode = localStorage.getItem(LS_CODE);
-if (!syncCode) {
-  syncCode = genCode();
-  localStorage.setItem(LS_CODE, syncCode);
-}
-
-let days = loadLocalDays();
+let days = loadJSON(LS_DAYS, {});
+let visits = loadJSON(LS_VISITS, {});
+let recent = loadJSON(LS_RECENT, []);
+let syncCode = localStorage.getItem(LS_CODE) || null;  // 未設定＝純本機，不自動產生
 let cloudOk = false;
 
-function mergeDays(a, b) {
+function saveLocal() {
+  localStorage.setItem(LS_DAYS, JSON.stringify(days));
+  localStorage.setItem(LS_VISITS, JSON.stringify(visits));
+  localStorage.setItem(LS_RECENT, JSON.stringify(recent));
+}
+
+function mergeCount(a, b) {
   const out = { ...a };
   for (const k in b) out[k] = Math.max(out[k] || 0, b[k]);
   return out;
 }
+function mergeRecent(local, remote) {
+  const out = [];
+  for (const f of [...local, ...remote]) {
+    if (!out.includes(f)) out.push(f);
+    if (out.length >= 3) break;
+  }
+  return out;
+}
 
 async function pullCloud() {
-  if (!db || !syncCode || syncCode.length < 6) return;
+  if (!db || !syncCode) return;
   try {
     const snap = await getDoc(doc(db, "learners", syncCode));
-    const remote = snap.exists() ? (snap.data().days || {}) : {};
-    days = mergeDays(days, remote);
-    saveLocalDays(days);
+    if (snap.exists()) {
+      const d = snap.data();
+      days = mergeCount(days, d.days || {});
+      visits = mergeCount(visits, d.visits || {});
+      recent = mergeRecent(recent, d.recent || []);
+      saveLocal();
+    }
     cloudOk = true;
   } catch (e) {
     console.warn("雲端讀取失敗", e);
     cloudOk = false;
   }
   renderAll();
-  renderSyncStatus();
 }
 
 async function pushCloud() {
-  if (!db || !syncCode || syncCode.length < 6) return;
+  if (!db || !syncCode) return;
   try {
     await setDoc(doc(db, "learners", syncCode), {
-      days,
+      days, visits, recent,
       updated: new Date().toISOString()
     });
     cloudOk = true;
@@ -515,18 +601,26 @@ async function pushCloud() {
   renderSyncStatus();
 }
 
-function recordToday() {
+function recordVisit(file) {
   const t = todayStr();
   days[t] = (days[t] || 0) + 1;
-  saveLocalDays(days);
+  visits[file] = (visits[file] || 0) + 1;
+  recent = [file, ...recent.filter(f => f !== file)].slice(0, 3);
+  saveLocal();
   renderAll();
-  return pushCloud();
+  pushCloud();
 }
+
+function goTo(file) {
+  recordVisit(file);
+  setTimeout(() => { location.href = "./" + file; }, 200);
+}
+window.hubGoTo = goTo;
 
 /* ================= 熱圖（單月 + 前後箭頭） ================= */
 const now = new Date();
 let viewYear = now.getFullYear();
-let viewMonth = now.getMonth(); // 0-11
+let viewMonth = now.getMonth();
 
 function levelOf(count) {
   if (!count) return 0;
@@ -538,7 +632,6 @@ function levelOf(count) {
 
 function renderHeatmap() {
   document.getElementById("heatMonth").textContent = `${viewYear} 年 ${viewMonth + 1} 月`;
-
   const grid = document.getElementById("heatGrid");
   grid.innerHTML = "";
 
@@ -579,28 +672,65 @@ document.getElementById("heatNext").addEventListener("click", () => {
 /* ================= 統計 ================= */
 function renderStats() {
   const total = Object.keys(days).filter(k => days[k] > 0).length;
-
   let streak = 0;
   const d = new Date();
-  if (!days[todayStr()]) d.setDate(d.getDate() - 1); // 今天還沒學，從昨天往回算
+  if (!days[todayStr()]) d.setDate(d.getDate() - 1);
   while (true) {
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     if (days[key] > 0) { streak++; d.setDate(d.getDate() - 1); }
     else break;
   }
-
   document.getElementById("statStreak").textContent = streak;
   document.getElementById("statTotal").textContent = total;
+}
+
+/* ================= 最近學過 ================= */
+function renderRecent() {
+  const wrap = document.getElementById("recentList");
+  if (!recent.length) {
+    wrap.innerHTML = '<span class="mini-empty">尚無紀錄</span>';
+    return;
+  }
+  wrap.innerHTML = "";
+  recent.forEach(file => {
+    const el = document.createElement("div");
+    el.className = "mini-item";
+    el.innerHTML = `<span class="mini-item-title">${titleOf(file)}</span><span class="mini-item-meta">繼續</span>`;
+    el.addEventListener("click", () => goTo(file));
+    wrap.appendChild(el);
+  });
+}
+
+/* ================= 最少複習 ================= */
+function renderLeast() {
+  const wrap = document.getElementById("leastList");
+  const sorted = [...PAGES].sort((a, b) => (visits[a.file] || 0) - (visits[b.file] || 0)).slice(0, 3);
+  wrap.innerHTML = "";
+  sorted.forEach(p => {
+    const n = visits[p.file] || 0;
+    const el = document.createElement("div");
+    el.className = "mini-item";
+    el.innerHTML = `<span class="mini-item-title">${p.title}</span><span class="mini-item-meta">${n} 次</span>`;
+    el.addEventListener("click", () => goTo(p.file));
+    wrap.appendChild(el);
+  });
 }
 
 function renderAll() {
   renderHeatmap();
   renderStats();
+  renderRecent();
+  renderLeast();
+  renderSyncStatus();
 }
 
 /* ================= 同步碼 UI ================= */
 function renderSyncStatus() {
   const el = document.getElementById("syncStatus");
+  if (!syncCode) {
+    el.innerHTML = '<span class="off">尚未設定同步碼，目前僅記錄在此裝置</span>';
+    return;
+  }
   const state = cloudOk
     ? '<span class="ok">已連線</span>'
     : '<span class="off">未連線（僅本機）</span>';
@@ -616,23 +746,15 @@ document.getElementById("syncApply").addEventListener("click", async () => {
   syncCode = v;
   localStorage.setItem(LS_CODE, syncCode);
   document.getElementById("syncInput").value = "";
+  renderSyncStatus();
   await pullCloud();
   await pushCloud();
 });
 
 /* ================= 隨機學習 ================= */
-const ALL_PAGES = [
-  "izakaya.html","italian.html","ramen.html","gyudon.html","sushi.html","yakiniku.html",
-  "butcher.html","pharmacy.html","konbini.html","bakery.html","starbucks.html",
-  "pokemon-card.html","greengrocer.html","clothing.html",
-  "hotel.html","reservation.html","shrine.html","museum.html","onsen.html",
-  "directions.html","taxi.html","car-rental.html","post-office.html"
-];
-
 document.getElementById("randomBtn").addEventListener("click", () => {
-  const page = ALL_PAGES[Math.floor(Math.random() * ALL_PAGES.length)];
-  recordToday();
-  setTimeout(() => { location.href = "./" + page; }, 200);
+  const p = PAGES[Math.floor(Math.random() * PAGES.length)];
+  goTo(p.file);
 });
 
 /* ================= 點卡片記錄 ================= */
@@ -640,14 +762,12 @@ document.querySelectorAll(".card").forEach(card => {
   card.addEventListener("click", (e) => {
     e.preventDefault();
     const href = card.getAttribute("href");
-    recordToday();
-    setTimeout(() => { location.href = href; }, 200);
+    goTo(href.replace("./", ""));
   });
 });
 
 /* ================= 初始化 ================= */
 renderAll();
-renderSyncStatus();
 pullCloud();
 </script>
 
