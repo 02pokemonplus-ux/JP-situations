@@ -148,6 +148,28 @@
   .mini-item-meta { font-size: 10px; color: var(--text3); }
   .mini-empty { font-size: 11px; color: var(--text3); }
 
+  /* favorites */
+  .fav-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .fav-tab {
+    flex: 1; text-align: center;
+    padding: 6px 4px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    font-family: inherit;
+  }
+  .fav-tab.active { background: var(--gold); border-color: var(--gold); color: var(--surface); font-weight: 600; }
+  .fav-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .fav-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 9px; padding: 9px 11px;
+    cursor: pointer; transition: border-color .15s;
+  }
+  .fav-item:hover { border-color: var(--gold); }
+  .fav-item-jp { font-size: 13px; font-weight: 500; line-height: 1.4; }
+  .fav-item-zh { font-size: 11px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+  .fav-item-src { font-size: 9px; color: var(--text3); margin-top: 4px; }
+  .fav-count { font-size: 10px; color: var(--text3); margin-top: 8px; text-align: right; }
+
   /* random button */
   .random-btn {
     width: 100%;
@@ -286,6 +308,16 @@
           <div class="stat-label">累積天數</div>
         </div>
       </div>
+    </div>
+
+    <div class="side-block">
+      <div class="side-block-label">收藏</div>
+      <div class="fav-tabs">
+        <button class="fav-tab active" data-favtab="word">單字</button>
+        <button class="fav-tab" data-favtab="phrase">例句</button>
+      </div>
+      <div class="fav-list" id="favList"></div>
+      <div class="fav-count" id="favCount"></div>
     </div>
 
     <div class="side-block">
@@ -530,6 +562,7 @@ const titleOf = f => (PAGES.find(p => p.file === f) || {}).title || f;
 const LS_DAYS = "jp-hub-days";       // { "2026-07-08": 次數 }
 const LS_VISITS = "jp-hub-visits";   // { "ramen.html": 次數 }
 const LS_RECENT = "jp-hub-recent";   // [ "ramen.html", ... ] 最新在前
+const LS_FAVS = "jp-hub-favs";       // { "hotel.html::word::チェックイン": {...} }
 const LS_CODE = "jp-hub-synccode";
 
 function todayStr() {
@@ -544,6 +577,7 @@ function loadJSON(key, fallback) {
 let days = loadJSON(LS_DAYS, {});
 let visits = loadJSON(LS_VISITS, {});
 let recent = loadJSON(LS_RECENT, []);
+let favs = loadJSON(LS_FAVS, {});
 let syncCode = localStorage.getItem(LS_CODE) || null;  // 未設定＝純本機，不自動產生
 let cloudOk = false;
 
@@ -551,6 +585,7 @@ function saveLocal() {
   localStorage.setItem(LS_DAYS, JSON.stringify(days));
   localStorage.setItem(LS_VISITS, JSON.stringify(visits));
   localStorage.setItem(LS_RECENT, JSON.stringify(recent));
+  localStorage.setItem(LS_FAVS, JSON.stringify(favs));
 }
 
 function mergeCount(a, b) {
@@ -567,6 +602,14 @@ function mergeRecent(local, remote) {
   return out;
 }
 
+function mergeFavs(local, remote) {
+  const out = { ...remote };
+  for (const k in local) {
+    if (!out[k] || (local[k].ts || 0) > (out[k].ts || 0)) out[k] = local[k];
+  }
+  return out;
+}
+
 async function pullCloud() {
   if (!db || !syncCode) return;
   try {
@@ -576,6 +619,7 @@ async function pullCloud() {
       days = mergeCount(days, d.days || {});
       visits = mergeCount(visits, d.visits || {});
       recent = mergeRecent(recent, d.recent || []);
+      favs = mergeFavs(favs, d.favs || {});
       saveLocal();
     }
     cloudOk = true;
@@ -590,9 +634,9 @@ async function pushCloud() {
   if (!db || !syncCode) return;
   try {
     await setDoc(doc(db, "learners", syncCode), {
-      days, visits, recent,
+      days, visits, recent, favs,
       updated: new Date().toISOString()
-    });
+    }, { merge: true });
     cloudOk = true;
   } catch (e) {
     console.warn("雲端寫入失敗", e);
@@ -716,11 +760,55 @@ function renderLeast() {
   });
 }
 
+/* ================= 收藏清單 ================= */
+let favTab = "word";
+
+document.querySelectorAll(".fav-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".fav-tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    favTab = btn.dataset.favtab;
+    renderFavs();
+  });
+});
+
+function renderFavs() {
+  const wrap = document.getElementById("favList");
+  const countEl = document.getElementById("favCount");
+
+  const entries = Object.entries(favs)
+    .filter(([, v]) => v && v.type === favTab)
+    .sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0));
+
+  const nWord = Object.values(favs).filter(v => v && v.type === "word").length;
+  const nPhrase = Object.values(favs).filter(v => v && v.type === "phrase").length;
+  countEl.textContent = `單字 ${nWord}・例句 ${nPhrase}`;
+
+  if (!entries.length) {
+    wrap.innerHTML = `<span class="mini-empty">尚無收藏的${favTab === "word" ? "單字" : "例句"}</span>`;
+    return;
+  }
+
+  wrap.innerHTML = "";
+  entries.forEach(([, v]) => {
+    const el = document.createElement("div");
+    el.className = "fav-item";
+    const src = titleOf(v.page);
+    el.innerHTML =
+      `<div class="fav-item-jp">${v.jp || ""}</div>` +
+      `<div class="fav-item-zh">${v.zh || ""}</div>` +
+      `<div class="fav-item-src">${src}</div>`;
+    el.addEventListener("click", () => goTo(v.page));
+    wrap.appendChild(el);
+  });
+}
+
 function renderAll() {
   renderHeatmap();
   renderStats();
   renderRecent();
   renderLeast();
+  renderFavs();
   renderSyncStatus();
 }
 
