@@ -323,6 +323,7 @@
     justify-content: center;
     gap: 4px;
     transition: background 0.15s ease, border-color 0.15s ease;
+    position: relative;
   }
   .ref-cell:hover { border-color: var(--navy); }
   .ref-cell-jp { font-weight: 700; }
@@ -339,6 +340,77 @@
   }
   .ref-grid.zh-pinned .ref-cell:hover {
     border-color: var(--line);
+  }
+
+  /* ====== 收藏星號 / 單字發音 通用元件 ====== */
+  .icon-btn {
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    width: 26px;
+    height: 26px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .icon-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .icon-btn svg { width: 13px; height: 13px; }
+  .icon-btn.playing { background: var(--navy); border-color: var(--navy); color: var(--on-accent); }
+  .icon-btn.starred {
+    color: #C8A32C;
+    border-color: #C8A32C;
+  }
+  .icon-btn.starred svg { fill: #C8A32C; }
+
+  /* 速查表格子上的小工具列 */
+  .ref-cell-tools {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .ref-cell:hover .ref-cell-tools,
+  .ref-cell-tools:focus-within,
+  .ref-cell-tools.always-show { opacity: 1; }
+  .ref-cell-tools .icon-btn { width: 22px; height: 22px; }
+  .ref-cell-tools .icon-btn svg { width: 11px; height: 11px; }
+
+  @media (hover: none) {
+    .ref-cell-tools { opacity: 1; }
+  }
+
+  /* 單字卡工具列 */
+  .card-tools {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    display: flex;
+    gap: 8px;
+  }
+  .card-tools .icon-btn { width: 30px; height: 30px; }
+  .card-tools .icon-btn svg { width: 15px; height: 15px; }
+
+  /* 常用句氣泡的星號 */
+  .phrase-jp-row .icon-btn { margin-top: 1px; }
+
+  /* 空狀態提示 */
+  .empty-state {
+    background: var(--card);
+    border: 1px dashed var(--line);
+    border-radius: var(--r-md);
+    padding: 40px 28px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.7;
   }
 
   /* ====== Quiz view ====== */
@@ -419,6 +491,12 @@
     font-size: 13px;
     color: var(--navy);
     min-height: 18px;
+  }
+  .quiz-feedback-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
   }
 
   .quiz-footer {
@@ -557,6 +635,32 @@
   }
   .scenario-tab-item:hover { border-color: var(--navy); color: var(--ink); }
   .scenario-tab-item.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+
+  .speaker-filter-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    max-width: 680px;
+    margin: 0 auto 16px;
+    flex-wrap: wrap;
+  }
+  .speaker-filter-item {
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .speaker-filter-item:hover { border-color: var(--navy); color: var(--ink); }
+  .speaker-filter-item.active {
     background: var(--navy);
     border-color: var(--navy);
     color: var(--on-accent);
@@ -790,15 +894,21 @@
         <div class="inner-tab-item active" data-submode="memorize">記憶</div>
         <div class="inner-tab-item" data-submode="quiz">測驗</div>
       </nav>
+      <button class="phrase-toggle-btn" id="favOnlyBtn" data-on="false" type="button">只練收藏</button>
       <button class="direction-toggle-btn" id="directionToggleBtn" type="button" style="display:none;">切換為「中→日」</button>
     </div>
 
     <!-- 記憶子視圖 -->
     <div class="inner-view active" id="study-memorize">
-      <p class="section-label">點擊卡片查看中文意思</p>
+      <p class="section-label" id="studyHint">點擊卡片查看中文意思</p>
       <div class="study-layout">
+        <div class="empty-state" id="studyEmpty" style="display:none;">
+          尚未收藏任何單字。在速查表或單字卡上點擊星號即可加入收藏。
+        </div>
+        <div id="studyBody">
         <div class="card-panel" id="flashcard">
           <span class="card-index-tag" id="cardIndexTag">1 / 10</span>
+          <div class="card-tools" id="cardTools"></div>
           <div class="card-jp" id="cardJp"></div>
           <div class="card-kana" id="cardKana"></div>
           <div class="card-zh" id="cardZh"></div>
@@ -810,12 +920,16 @@
           <button class="nav-btn" id="nextBtn">›</button>
           <button class="shuffle-btn" id="shuffleBtn">隨機排序</button>
         </div>
+        </div>
       </div>
     </div>
 
     <!-- 測驗子視圖 -->
     <div class="inner-view" id="study-quiz">
       <div class="quiz-wrap">
+        <div class="empty-state" id="quizEmpty" style="display:none;">
+          尚未收藏任何單字。在速查表或單字卡上點擊星號即可加入收藏。
+        </div>
         <div class="quiz-progress" id="quizProgress">第 1 題 / 共 10 題</div>
         <div id="quizContent">
           <div class="quiz-panel">
@@ -851,6 +965,7 @@
     </div>
     <nav class="scene-tabbar" id="sceneTabbar"></nav>
     <nav class="scenario-tabbar" id="scenarioTabbar"></nav>
+    <div class="speaker-filter-row" id="speakerFilterRow"></div>
     <div class="playall-row">
       <button class="playall-btn" id="playAllBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="playAllIcon">
@@ -1377,6 +1492,7 @@ let quizScore = 0;
 let quizAnswered = false;
 let quizDirection = "jp2zh"; // "jp2zh" | "zh2jp"
 let autoAdvanceTimer = null;
+let favOnly = false;         // 只練收藏模式
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -1390,12 +1506,13 @@ function shuffle(arr) {
 function refreshCatTabbarVisibility() {
   const needsCat = (currentMode === 'ref' && refSubMode === 'lookup') ||
                     (currentMode === 'study' && (studySubMode === 'memorize' || studySubMode === 'quiz'));
-  document.getElementById('catTabbar').style.display = needsCat ? 'flex' : 'none';
+  document.getElementById('catTabbar').style.display = (needsCat && !favOnly) ? 'flex' : 'none';
 }
 
 function refreshDirectionToggleVisibility() {
   const showToggle = currentMode === 'study' && studySubMode === 'quiz';
   document.getElementById('directionToggleBtn').style.display = showToggle ? 'inline-block' : 'none';
+  document.getElementById('favOnlyBtn').style.display = currentMode === 'study' ? 'inline-block' : 'none';
 }
 
 /* ---------- top-level mode tabs ---------- */
@@ -1471,17 +1588,106 @@ function buildCatTabs() {
   });
 }
 
+/* ================= 共用元件：星號 / 發音 ================= */
+const STAR_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2.5 15 9 22 9.8 16.8 14.5 18.3 21.5 12 17.9 5.7 21.5 7.2 14.5 2 9.8 9 9 12 2.5"></polygon></svg>`;
+const SPEAK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18 6a8.5 8.5 0 0 1 0 12"></path></svg>`;
+
+/* 等待 common.js 就緒（若未載入則所有收藏功能靜默停用） */
+function hub() { return window.JPHub || null; }
+
+/* 單字收藏 id 加上分類前綴，避免同一詞出現在不同分類時互相覆蓋 */
+function wordId(catKey, jp) { return `${catKey}::${jp}`; }
+
+function makeStarBtn(type, id, data) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'icon-btn';
+  btn.innerHTML = STAR_SVG;
+  btn.setAttribute('aria-label', '收藏');
+  btn.title = '收藏';
+
+  const sync = () => {
+    const h = hub();
+    btn.classList.toggle('starred', !!(h && h.isFav(type, id)));
+  };
+  sync();
+  window.addEventListener('jphub-ready', sync);
+  window.addEventListener('favs-synced', sync);
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const h = hub();
+    if (!h) return;
+    const on = h.toggleFav(type, id, data);
+    btn.classList.toggle('starred', on);
+  });
+  return btn;
+}
+
+function makeSpeakBtn(text) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'icon-btn';
+  btn.innerHTML = SPEAK_SVG;
+  btn.setAttribute('aria-label', '播放發音');
+  btn.title = '播放發音';
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stopPlayAll();
+    speakWord(text, btn);
+  });
+  return btn;
+}
+
+/* 單字用發音（中性音色，與對話的說話者音色區分開） */
+function speakWord(text, btn) {
+  if (!('speechSynthesis' in window)) {
+    alert('您的瀏覽器不支援語音播放功能');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ja-JP';
+  const voices = getJaVoices();
+  if (voices.length) utter.voice = voices[0];
+  utter.pitch = 1.0;
+  utter.rate = 0.9;
+
+  document.querySelectorAll('.icon-btn.playing').forEach(b => b.classList.remove('playing'));
+  if (btn) btn.classList.add('playing');
+  const clear = () => { if (btn) btn.classList.remove('playing'); };
+  utter.onend = clear;
+  utter.onerror = clear;
+  window.speechSynthesis.speak(utter);
+}
+
 /* ================= REF (速査表) ================= */
 let refZhPinned = false;
+
+function refCellBody(item, revealed) {
+  return revealed
+    ? `<span class="ref-cell-kana">${item.kana}</span><span class="ref-cell-zh">${item.zh}</span>`
+    : `<span class="ref-cell-jp">${item.jp}</span>`;
+}
+
+function attachRefTools(cell, item) {
+  const tools = document.createElement('div');
+  tools.className = 'ref-cell-tools';
+  tools.appendChild(makeSpeakBtn(item.jp));
+  tools.appendChild(makeStarBtn('word', wordId(currentCat, item.jp),
+    { jp: item.jp, kana: item.kana, zh: item.zh, cat: VOCAB_DATA[currentCat].label }));
+  cell.appendChild(tools);
+}
 
 function renderRefCell(cell, item) {
   if (refZhPinned) {
     cell.classList.add('revealed');
-    cell.innerHTML = `<span class="ref-cell-jp">${item.jp}</span><span class="ref-cell-kana">${item.kana}</span><span class="ref-cell-zh">${item.zh}</span>`;
+    cell.innerHTML = refCellBody(item, true);
   } else {
     cell.classList.remove('revealed');
-    cell.innerHTML = `<span class="ref-cell-jp">${item.jp}</span>`;
+    cell.innerHTML = refCellBody(item, false);
   }
+  attachRefTools(cell, item);
 }
 
 function renderRef() {
@@ -1496,9 +1702,8 @@ function renderRef() {
     cell.addEventListener('click', () => {
       if (refZhPinned) return; // 中文常駐模式下不需要點擊翻牌
       const revealed = cell.classList.toggle('revealed');
-      cell.innerHTML = revealed
-        ? `<span class="ref-cell-kana">${item.kana}</span><span class="ref-cell-zh">${item.zh}</span>`
-        : `<span class="ref-cell-jp">${item.jp}</span>`;
+      cell.innerHTML = refCellBody(item, revealed);
+      attachRefTools(cell, item);
     });
     grid.appendChild(cell);
   });
@@ -1515,23 +1720,97 @@ document.getElementById('toggleRefZh').addEventListener('click', (e) => {
 });
 
 /* ================= STUDY ================= */
-function initStudy() {
+
+/* 目前單字卡／測驗要練的題目來源 */
+function getStudyItems() {
   const cat = VOCAB_DATA[currentCat];
-  studyOrder = cat.items.map((_, i) => i);
+  if (!favOnly) return cat.items;
+  const h = hub();
+  if (!h) return [];
+  // 收藏模式：跨分類收集本頁所有收藏單字
+  const out = [];
+  Object.entries(h.getFavs()).forEach(([, v]) => {
+    if (v && v.type === 'word' && v.page === h.PAGE && v.jp) {
+      out.push({ jp: v.jp, kana: v.kana, zh: v.zh });
+    }
+  });
+  return out;
+}
+
+/* 找出某個單字屬於哪個分類（收藏模式下用來還原正確的 wordId） */
+function catOfWord(jp) {
+  for (const key of CAT_KEYS) {
+    if (VOCAB_DATA[key].items.some(it => it.jp === jp)) return key;
+  }
+  return currentCat;
+}
+
+function updateStudyEmptyState() {
+  const items = getStudyItems();
+  const empty = favOnly && items.length < 1;
+  const quizTooFew = favOnly && items.length < 4;
+
+  document.getElementById('studyEmpty').style.display = empty ? 'block' : 'none';
+  document.getElementById('studyBody').style.display = empty ? 'none' : 'block';
+  document.getElementById('studyHint').style.display = empty ? 'none' : 'block';
+
+  const qEmpty = document.getElementById('quizEmpty');
+  const qContent = document.getElementById('quizContent');
+  const qProgress = document.getElementById('quizProgress');
+  if (quizTooFew) {
+    qEmpty.textContent = items.length
+      ? '收藏的單字少於 4 個，無法組成選擇題。請再多收藏幾個單字。'
+      : '尚未收藏任何單字。在速查表或單字卡上點擊星號即可加入收藏。';
+    qEmpty.style.display = 'block';
+    qContent.style.display = 'none';
+    document.getElementById('quizResultView').style.display = 'none';
+    qProgress.style.display = 'none';
+  } else {
+    qEmpty.style.display = 'none';
+    qProgress.style.display = 'block';
+  }
+  return { empty, quizTooFew };
+}
+
+document.getElementById('favOnlyBtn').addEventListener('click', (e) => {
+  const isOn = e.target.dataset.on === 'true';
+  favOnly = !isOn;
+  e.target.dataset.on = String(favOnly);
+  refreshCatTabbarVisibility();
+  document.getElementById('studyHint').textContent = favOnly
+    ? '只練收藏的單字，點擊卡片查看中文意思'
+    : '點擊卡片查看中文意思';
+  enterCurrentMode();
+});
+
+function initStudy() {
+  const { empty } = updateStudyEmptyState();
+  if (empty) return;
+  const items = getStudyItems();
+  studyOrder = items.map((_, i) => i);
   studyIndex = 0;
   isFlipped = false;
   renderStudyCard();
 }
 
 function renderStudyCard() {
-  const cat = VOCAB_DATA[currentCat];
-  const item = cat.items[studyOrder[studyIndex]];
+  const items = getStudyItems();
+  if (!items.length) return;
+  if (studyIndex >= items.length) studyIndex = 0;
+  const item = items[studyOrder[studyIndex]];
+  if (!item) return;
   isFlipped = false;
 
   document.getElementById('cardJp').textContent = item.jp;
   document.getElementById('cardKana').textContent = item.kana;
   document.getElementById('cardZh').textContent = '';
   document.getElementById('cardHint').textContent = '點擊卡片看中文';
+
+  const tools = document.getElementById('cardTools');
+  tools.innerHTML = '';
+  tools.appendChild(makeSpeakBtn(item.jp));
+  tools.appendChild(makeStarBtn('word', wordId(catOfWord(item.jp), item.jp),
+    { jp: item.jp, kana: item.kana, zh: item.zh, cat: VOCAB_DATA[catOfWord(item.jp)].label }));
 
   const pos = studyIndex + 1;
   const total = studyOrder.length;
@@ -1540,18 +1819,21 @@ function renderStudyCard() {
 }
 
 document.getElementById('flashcard').addEventListener('click', () => {
-  const cat = VOCAB_DATA[currentCat];
-  const item = cat.items[studyOrder[studyIndex]];
+  const items = getStudyItems();
+  const item = items[studyOrder[studyIndex]];
+  if (!item) return;
   isFlipped = !isFlipped;
   document.getElementById('cardZh').textContent = isFlipped ? item.zh : '';
   document.getElementById('cardHint').textContent = isFlipped ? '點擊卡片隱藏中文' : '點擊卡片看中文';
 });
 
 document.getElementById('nextBtn').addEventListener('click', () => {
+  if (!studyOrder.length) return;
   studyIndex = (studyIndex + 1) % studyOrder.length;
   renderStudyCard();
 });
 document.getElementById('prevBtn').addEventListener('click', () => {
+  if (!studyOrder.length) return;
   studyIndex = (studyIndex - 1 + studyOrder.length) % studyOrder.length;
   renderStudyCard();
 });
@@ -1563,8 +1845,11 @@ document.getElementById('shuffleBtn').addEventListener('click', () => {
 
 /* ================= QUIZ ================= */
 function initQuiz() {
-  const cat = VOCAB_DATA[currentCat];
-  quizQueue = shuffle(cat.items.map((_, i) => i));
+  const { quizTooFew } = updateStudyEmptyState();
+  if (quizTooFew) return;
+
+  const items = getStudyItems();
+  quizQueue = shuffle(items.map((_, i) => i));
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
@@ -1575,9 +1860,10 @@ function initQuiz() {
 }
 
 function renderQuizQuestion() {
-  const cat = VOCAB_DATA[currentCat];
+  const items = getStudyItems();
   const itemIdx = quizQueue[quizIndex];
-  const item = cat.items[itemIdx];
+  const item = items[itemIdx];
+  if (!item) return;
   quizAnswered = false;
   if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
 
@@ -1596,12 +1882,12 @@ function renderQuizQuestion() {
     kanaEl.style.display = 'none';
   }
 
-  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizFeedback').innerHTML = '';
   document.getElementById('nextQuestionBtn').disabled = true;
   document.getElementById('quizProgress').textContent = `第 ${quizIndex + 1} 題 / 共 ${quizQueue.length} 題`;
 
   const correctAnswer = quizDirection === 'jp2zh' ? item.zh : item.jp;
-  const pool = cat.items
+  const pool = items
     .filter((_, i) => i !== itemIdx)
     .map(x => quizDirection === 'jp2zh' ? x.zh : x.jp);
   const wrongs = shuffle(pool).slice(0, 3);
@@ -1613,26 +1899,44 @@ function renderQuizQuestion() {
     const btn = document.createElement('button');
     btn.className = 'quiz-option';
     btn.textContent = opt;
-    btn.addEventListener('click', () => handleAnswer(btn, opt, correctAnswer));
+    btn.addEventListener('click', () => handleAnswer(btn, opt, correctAnswer, item));
     optWrap.appendChild(btn);
   });
 
   document.getElementById('scoreText').textContent = `${quizScore} / ${quizIndex}`;
 }
 
-function handleAnswer(btn, chosen, correct) {
+function handleAnswer(btn, chosen, correct, item) {
   if (quizAnswered) return;
   quizAnswered = true;
   document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
 
+  const feedback = document.getElementById('quizFeedback');
+
   if (chosen === correct) {
     btn.classList.add('correct');
     quizScore++;
-    document.getElementById('quizFeedback').textContent = '答對了';
+    feedback.textContent = '答對了';
   } else {
     btn.classList.add('wrong');
     document.querySelectorAll('.quiz-option').forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
-    document.getElementById('quizFeedback').textContent = `正確答案：${correct}`;
+
+    // 答錯：顯示正確答案，並提供一鍵收藏這個單字
+    feedback.innerHTML = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-feedback-row';
+    const txt = document.createElement('span');
+    txt.textContent = `正確答案：${correct}`;
+    wrap.appendChild(txt);
+    if (item) {
+      const cat = catOfWord(item.jp);
+      const star = makeStarBtn('word', wordId(cat, item.jp),
+        { jp: item.jp, kana: item.kana, zh: item.zh, cat: VOCAB_DATA[cat].label });
+      star.title = '收藏這個單字';
+      wrap.appendChild(star);
+      wrap.appendChild(makeSpeakBtn(item.jp));
+    }
+    feedback.appendChild(wrap);
   }
   document.getElementById('scoreText').textContent = `${quizScore} / ${quizIndex + 1}`;
   document.getElementById('nextQuestionBtn').disabled = false;
@@ -1697,6 +2001,49 @@ function renderConfuse() {
 
 /* ================= PHRASE (常用句) ================= */
 const SPEAKER_LABELS = { staff: "服務人員", customer: "問路者", local: "路人" };
+let speakerFilter = "all";
+
+/* 目前場景實際出現的說話者（本頁有三種：服務人員／問路者／路人） */
+function speakersInScene() {
+  const scene = PHRASE_DATA[currentPhraseScene];
+  const set = new Set();
+  scene.scenarios.forEach(sc => sc.items.forEach(it => set.add(it.speaker)));
+  return [...set];
+}
+
+function buildSpeakerFilter() {
+  const row = document.getElementById('speakerFilterRow');
+  const speakers = speakersInScene();
+  if (!speakers.includes(speakerFilter)) speakerFilter = "all";
+  row.innerHTML = '';
+  const options = ["all", ...speakers];
+  options.forEach(key => {
+    const pill = document.createElement('div');
+    pill.className = 'speaker-filter-item' + (key === speakerFilter ? ' active' : '');
+    pill.dataset.speaker = key;
+    pill.textContent = key === "all" ? "全部" : `只看${SPEAKER_LABELS[key]}`;
+    row.appendChild(pill);
+  });
+}
+
+/* 目前情境中，套用說話者篩選後的句子 */
+function getPhraseItems() {
+  const scene = PHRASE_DATA[currentPhraseScene];
+  const scenario = scene.scenarios[currentScenarioIndex];
+  const items = scenario.items.map((it, i) => ({ ...it, _idx: i }));
+  if (speakerFilter === "all") return items;
+  return items.filter(it => it.speaker === speakerFilter);
+}
+
+document.getElementById('speakerFilterRow').addEventListener('click', (e) => {
+  const item = e.target.closest('.speaker-filter-item');
+  if (!item) return;
+  stopPlayAll();
+  document.querySelectorAll('#speakerFilterRow .speaker-filter-item').forEach(el => el.classList.remove('active'));
+  item.classList.add('active');
+  speakerFilter = item.dataset.speaker;
+  renderPhraseList();
+});
 
 function buildSceneTabs() {
   const bar = document.getElementById('sceneTabbar');
@@ -1712,6 +2059,7 @@ function buildSceneTabs() {
       currentScenarioIndex = 0;
       buildSceneTabs();
       buildScenarioTabs();
+      buildSpeakerFilter();
       renderPhraseList();
     });
     bar.appendChild(el);
@@ -1747,12 +2095,13 @@ const SPEAKER_ICON_SVG = `
 function renderPhraseList() {
   const scene = PHRASE_DATA[currentPhraseScene];
   const scenario = scene.scenarios[currentScenarioIndex];
+  const items = getPhraseItems();
   const list = document.getElementById('phraseList');
   list.innerHTML = '';
-  scenario.items.forEach((item, idx) => {
+  items.forEach((item) => {
     const row = document.createElement('div');
     row.className = 'phrase-row ' + item.speaker;
-    row.dataset.index = idx;
+    row.dataset.index = item._idx;
     row.innerHTML = `
       <span class="speaker-tag">${SPEAKER_LABELS[item.speaker]}</span>
       <div class="phrase-bubble">
@@ -1782,6 +2131,14 @@ function renderPhraseList() {
       stopPlayAll();
       speakJapanese(item.jp, item.speaker, speakBtn, row);
     });
+
+    // 收藏星號：標記不熟悉的句子
+    const phraseId = `${currentPhraseScene}-${currentScenarioIndex}-${item._idx}`;
+    const starBtn = makeStarBtn('phrase', phraseId, {
+      jp: item.jp, kana: item.kana, zh: item.zh,
+      scene: scene.label, scenario: scenario.label
+    });
+    row.querySelector('.phrase-jp-row').appendChild(starBtn);
 
     list.appendChild(row);
   });
@@ -1881,10 +2238,10 @@ function stopPlayAll() {
 }
 
 function playAllScenario() {
-  const scene = PHRASE_DATA[currentPhraseScene];
-  const scenario = scene.scenarios[currentScenarioIndex];
-  const items = scenario.items;
+  const items = getPhraseItems();
   const rows = Array.from(document.querySelectorAll('#phraseList .phrase-row'));
+
+  if (!items.length) return;
 
   playAllActive = true;
   playAllAbort = false;
@@ -1955,6 +2312,7 @@ document.getElementById('playAllBtn').addEventListener('click', () => {
 function renderPhrase() {
   buildSceneTabs();
   buildScenarioTabs();
+  buildSpeakerFilter();
   renderPhraseList();
 }
 
@@ -1983,12 +2341,29 @@ function applyTheme(theme) {
   document.getElementById('themeIcon').innerHTML = theme === 'dark' ? MOON_PATH : SUN_PATH;
 }
 
-const savedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+/* 主題偏好與 hub 共用同一個 localStorage 鍵，從首頁點進來不會跳色 */
+const THEME_KEY = 'hub-dark';
+const savedPref = localStorage.getItem(THEME_KEY);
+const savedTheme = savedPref === '1' ? 'dark'
+  : savedPref === '0' ? 'light'
+  : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 applyTheme(savedTheme);
 
 document.getElementById('themeToggle').addEventListener('click', () => {
   const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   applyTheme(next);
+  localStorage.setItem(THEME_KEY, next === 'dark' ? '1' : '0');
+});
+
+/* 收藏變動時，若正在「只練收藏」模式，重新整理題目來源 */
+window.addEventListener('favs-changed', () => {
+  if (favOnly && currentMode === 'study') {
+    if (studySubMode === 'memorize') updateStudyEmptyState();
+    // 測驗中途不重建題庫，避免打斷作答
+  }
+});
+window.addEventListener('favs-synced', () => {
+  if (favOnly && currentMode === 'study') enterCurrentMode();
 });
 
 /* ---------- init ---------- */
@@ -1997,5 +2372,8 @@ renderRef();
 refreshDirectionToggleVisibility();
 
 </script>
+
+<!-- 共用模組：收藏、雲端同步、回首頁按鈕 -->
+<script type="module" src="./common.js"></script>
 </body>
 </html>
