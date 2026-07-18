@@ -68,11 +68,6 @@
     letter-spacing: 0.04em;
   }
 
-  .topbar-sub {
-    font-size: 12px;
-    color: rgba(244,245,247,0.65);
-    letter-spacing: 0.02em;
-  }
 
   .topbar-right { display: flex; align-items: center; gap: 14px; }
 
@@ -102,6 +97,9 @@
     border-bottom: 1px solid var(--line);
     display: flex;
     overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 20;
   }
 
   .tab-item {
@@ -398,18 +396,9 @@
     right: 8px;
     display: flex;
     gap: 4px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
   }
-  .ref-cell:hover .ref-cell-tools,
-  .ref-cell-tools:focus-within,
-  .ref-cell-tools.always-show { opacity: 1; }
   .ref-cell-tools .icon-btn { width: 22px; height: 22px; }
   .ref-cell-tools .icon-btn svg { width: 11px; height: 11px; }
-
-  @media (hover: none) {
-    .ref-cell-tools { opacity: 1; }
-  }
 
   /* 單字卡工具列 */
   .card-tools {
@@ -556,6 +545,12 @@
     font-size: 13px;
     cursor: pointer;
     font-family: inherit;
+  }
+  .retest-btn {
+    background: var(--card);
+    color: var(--navy);
+    border: 1px solid var(--navy);
+    margin-left: 10px;
   }
 
   /* ====== Confusables view ====== */
@@ -848,7 +843,25 @@
 
   @media (max-width: 860px) {
     .quiz-options { grid-template-columns: 1fr; }
-    .ref-grid { grid-template-columns: 1fr; }
+    .ref-grid { grid-template-columns: 1fr; gap: 8px; }
+
+    /* 頂欄瘦身 */
+    .topbar { padding: 12px 16px; }
+    .topbar-title { font-size: 15px; }
+
+    /* 速查表緊湊列表：日文靠左、圖示固定右側垂直置中 */
+    .ref-cell {
+      min-height: 44px;
+      padding: 10px 62px 10px 14px;
+      align-items: flex-start;
+      text-align: left;
+      gap: 2px;
+    }
+    .ref-cell-tools {
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+    }
   }
 
   :focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
@@ -858,10 +871,9 @@
 
 <header class="topbar">
   <div class="topbar-left">
-    <span class="topbar-title">日本連鎖商務飯店日語學習工具</span>
+    <span class="topbar-title">商務飯店</span>
   </div>
   <div class="topbar-right">
-    <span class="topbar-sub">速查 ・ 單字卡 ・ 測驗 ・ 易混淆點</span>
     <button class="theme-toggle" id="themeToggle" title="切換晝夜模式" aria-label="切換晝夜模式">
       <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="4.5"></circle>
@@ -899,7 +911,10 @@
     <div class="inner-view active" id="ref-lookup">
       <div class="ref-toolbar-row">
         <p class="section-label" id="refLookupHint">點擊單字查看假名與中文意思</p>
-        <button class="phrase-toggle-btn" id="toggleRefZh" data-on="false">全顯示</button>
+        <div class="phrase-toggle-group">
+          <button class="phrase-toggle-btn" id="toggleAutoSpeak" data-on="false">自動發音</button>
+          <button class="phrase-toggle-btn" id="toggleRefZh" data-on="false">全顯示</button>
+        </div>
       </div>
       <div class="shape-filter-row" id="shapeFilterRow" style="display:none;"></div>
       <div class="ref-grid" id="refGrid"></div>
@@ -974,6 +989,7 @@
             <div class="big-score" id="finalScore">0 / 10</div>
             <div class="result-msg" id="resultMsg"></div>
             <button class="restart-btn" id="restartBtn">再測一次</button>
+            <button class="restart-btn retest-btn" id="retestWrongBtn" style="display:none;">只重測答錯的</button>
           </div>
         </div>
       </div>
@@ -1823,6 +1839,9 @@ let studyIndex = 0;
 let isFlipped = false;
 
 let quizQueue = [];
+let quizItems = [];
+let quizOptionPool = [];
+let quizWrongItems = [];
 let quizIndex = 0;
 let quizScore = 0;
 let quizAnswered = false;
@@ -2000,6 +2019,8 @@ function speakWord(text, btn) {
 /* ================= REF (速査表) ================= */
 let currentShapeFilter = "all";
 let refZhPinned = false;
+let autoSpeak = false;
+const PAGE_KEY = 'hotel'; // localStorage 前綴，生成新情境時需改成該頁檔名
 
 const SHAPE_LABELS = {
   all: "全部",
@@ -2049,9 +2070,12 @@ function refCellBody(item, revealed) {
 }
 
 function attachRefTools(cell, item) {
+  // 方案A：未翻開的格子保持乾淨，不顯示任何圖示
+  if (!cell.classList.contains('revealed')) return;
   const tools = document.createElement('div');
   tools.className = 'ref-cell-tools';
-  tools.appendChild(makeSpeakBtn(item.jp));
+  // 全顯示（掃讀）模式只留星號；翻牌模式提供喇叭重播＋星號
+  if (!refZhPinned) tools.appendChild(makeSpeakBtn(item.jp));
   tools.appendChild(makeStarBtn('word', wordId(currentCat, item.jp),
     { jp: item.jp, kana: item.kana, zh: item.zh, cat: VOCAB_DATA[currentCat].label }));
   cell.appendChild(tools);
@@ -2085,6 +2109,11 @@ function renderRef(keepFilter) {
       const revealed = cell.classList.toggle('revealed');
       cell.innerHTML = refCellBody(item, revealed);
       attachRefTools(cell, item);
+      // 方案B：開啟自動發音時，翻開即唸一次（喇叭鈕仍可重播）
+      if (revealed && autoSpeak) {
+        stopPlayAll();
+        speakWord(item.jp, cell.querySelector('.ref-cell-tools .icon-btn'));
+      }
     });
     grid.appendChild(cell);
   });
@@ -2097,7 +2126,15 @@ document.getElementById('toggleRefZh').addEventListener('click', (e) => {
   document.getElementById('refLookupHint').textContent = refZhPinned
     ? '已顯示全部假名與中文意思'
     : '點擊單字查看假名與中文意思';
+  localStorage.setItem(PAGE_KEY + '-refZh', refZhPinned ? '1' : '0');
   renderRef(true);
+});
+
+document.getElementById('toggleAutoSpeak').addEventListener('click', (e) => {
+  const isOn = e.target.dataset.on === 'true';
+  autoSpeak = !isOn;
+  e.target.dataset.on = String(autoSpeak);
+  localStorage.setItem(PAGE_KEY + '-autoSpeak', autoSpeak ? '1' : '0');
 });
 
 /* ================= STUDY ================= */
@@ -2200,6 +2237,7 @@ function renderStudyCard() {
 }
 
 document.getElementById('flashcard').addEventListener('click', () => {
+  if (swipeHandled) { swipeHandled = false; return; }
   const items = getStudyItems();
   const item = items[studyOrder[studyIndex]];
   if (!item) return;
@@ -2207,6 +2245,27 @@ document.getElementById('flashcard').addEventListener('click', () => {
   document.getElementById('cardZh').textContent = isFlipped ? item.zh : '';
   document.getElementById('cardHint').textContent = isFlipped ? '點擊卡片隱藏中文' : '點擊卡片看中文';
 });
+
+/* 單字卡滑動手勢：左滑下一張、右滑上一張 */
+let swipeStartX = 0, swipeStartY = 0, swipeHandled = false;
+const flashcardEl = document.getElementById('flashcard');
+flashcardEl.addEventListener('touchstart', (e) => {
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+  swipeHandled = false;
+}, { passive: true });
+flashcardEl.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    swipeHandled = true;
+    if (dx < 0) {
+      document.getElementById('nextBtn').click();
+    } else {
+      document.getElementById('prevBtn').click();
+    }
+  }
+}, { passive: true });
 
 document.getElementById('nextBtn').addEventListener('click', () => {
   if (!studyOrder.length) return;
@@ -2225,12 +2284,14 @@ document.getElementById('shuffleBtn').addEventListener('click', () => {
 });
 
 /* ================= QUIZ ================= */
-function initQuiz() {
+function initQuiz(customItems) {
   const { quizTooFew } = updateStudyEmptyState();
   if (quizTooFew) return;
 
-  const items = getStudyItems();
-  quizQueue = shuffle(items.map((_, i) => i));
+  quizOptionPool = getStudyItems();
+  quizItems = (customItems && customItems.length) ? customItems : quizOptionPool;
+  quizQueue = shuffle(quizItems.map((_, i) => i));
+  quizWrongItems = [];
   quizIndex = 0;
   quizScore = 0;
   quizAnswered = false;
@@ -2241,7 +2302,7 @@ function initQuiz() {
 }
 
 function renderQuizQuestion() {
-  const items = getStudyItems();
+  const items = quizItems;
   const itemIdx = quizQueue[quizIndex];
   const item = items[itemIdx];
   if (!item) return;
@@ -2268,8 +2329,8 @@ function renderQuizQuestion() {
   document.getElementById('quizProgress').textContent = `第 ${quizIndex + 1} 題 / 共 ${quizQueue.length} 題`;
 
   const correctAnswer = quizDirection === 'jp2zh' ? item.zh : item.jp;
-  const pool = items
-    .filter((_, i) => i !== itemIdx)
+  const pool = quizOptionPool
+    .filter(x => x.jp !== item.jp)
     .map(x => quizDirection === 'jp2zh' ? x.zh : x.jp);
   const wrongs = shuffle(pool).slice(0, 3);
   const options = shuffle([correctAnswer, ...wrongs]);
@@ -2300,6 +2361,7 @@ function handleAnswer(btn, chosen, correct, item) {
     feedback.textContent = '答對了';
   } else {
     btn.classList.add('wrong');
+    if (item) quizWrongItems.push(item);
     document.querySelectorAll('.quiz-option').forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
 
     // 答錯：顯示正確答案，並提供一鍵收藏這個單字
@@ -2361,9 +2423,11 @@ function showQuizResult() {
   else if (ratio >= 0.8) msg = '很不錯，幾乎全對';
   else if (ratio >= 0.5) msg = '還可以，再複習一輪會更熟練';
   document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('retestWrongBtn').style.display = quizWrongItems.length ? 'inline-block' : 'none';
 }
 
-document.getElementById('restartBtn').addEventListener('click', initQuiz);
+document.getElementById('restartBtn').addEventListener('click', () => initQuiz());
+document.getElementById('retestWrongBtn').addEventListener('click', () => initQuiz(quizWrongItems.slice()));
 
 /* ================= CONFUSE ================= */
 function renderConfuse() {
@@ -2675,6 +2739,7 @@ document.getElementById('toggleZh').addEventListener('click', (e) => {
   const isOn = e.target.dataset.on === 'true';
   e.target.dataset.on = String(!isOn);
   document.body.classList.toggle('show-zh', !isOn);
+  localStorage.setItem(PAGE_KEY + '-showZh', !isOn ? '1' : '0');
 });
 
 /* ---------- theme toggle ---------- */
@@ -2720,6 +2785,21 @@ window.addEventListener('favs-changed', () => {
 window.addEventListener('favs-synced', () => {
   if (favOnly && currentMode === 'study') enterCurrentMode();
 });
+
+/* ---------- 還原上次的開關狀態 ---------- */
+if (localStorage.getItem(PAGE_KEY + '-refZh') === '1') {
+  refZhPinned = true;
+  document.getElementById('toggleRefZh').dataset.on = 'true';
+  document.getElementById('refLookupHint').textContent = '已顯示全部假名與中文意思';
+}
+if (localStorage.getItem(PAGE_KEY + '-autoSpeak') === '1') {
+  autoSpeak = true;
+  document.getElementById('toggleAutoSpeak').dataset.on = 'true';
+}
+if (localStorage.getItem(PAGE_KEY + '-showZh') === '1') {
+  document.getElementById('toggleZh').dataset.on = 'true';
+  document.body.classList.add('show-zh');
+}
 
 /* ---------- init ---------- */
 buildCatTabs();
